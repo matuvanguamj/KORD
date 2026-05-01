@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KORD — Performance Opérationnelle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#000;--white:#fff;--off:#f4f3f0;--near:#0d0d0d;--g400:#6b6b6b;--g100:#e8e8e8}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;font-weight:300;background:var(--black);color:var(--white);overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:58px;background:rgba(0,0,0,0.93);backdrop-filter:blur(16px);border-bottom:0.5px solid rgba(255,255,255,0.07)}
+.logo-link{display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo-word{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;letter-spacing:-0.02em;color:#fff}
+.nav-r{display:flex;align-items:center;gap:10px}
+.btn-login{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:transparent;border:0.5px solid rgba(255,255,255,0.35);padding:9px 22px;cursor:pointer;text-decoration:none;transition:background .2s,color .2s}
+.btn-login:hover{background:#fff;color:#000}
+.btn-signup{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#000;background:#fff;border:none;padding:9px 22px;cursor:pointer;text-decoration:none}
+.btn-signup:hover{background:#e8e8e8}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 48px;position:relative;overflow:hidden}
+.hero-tag{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:#6b6b6b;margin-bottom:28px;opacity:0;animation:fadeUp .8s .1s ease forwards}
+.hero-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(56px,7.6vw,106px);line-height:.92;letter-spacing:-.02em;text-transform:uppercase;color:#fff;margin-bottom:28px;opacity:0;animation:fadeUp .8s .2s ease forwards}
+.hero-title em{font-style:normal;-webkit-text-stroke:1px rgba(255,255,255,0.25);color:transparent}
+.hero-sub{font-family:'Inter',sans-serif;font-weight:300;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#6b6b6b;margin-bottom:50px;opacity:0;animation:fadeUp .8s .3s ease forwards}
+.hero-sub span{margin:0 12px;opacity:.3}
+.hero-ctas{display:flex;gap:12px;opacity:0;animation:fadeUp .8s .4s ease forwards}
+.cta-main{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#000;background:#fff;border:none;padding:16px 38px;cursor:pointer;text-decoration:none}
+.cta-main:hover{background:#e8e8e8}
+.cta-sec{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:transparent;border:0.5px solid rgba(255,255,255,0.25);padding:16px 38px;cursor:pointer;text-decoration:none;transition:border-color .2s}
+.cta-sec:hover{border-color:#fff}
+.hero-badge{position:absolute;top:50%;right:48px;transform:translateY(-50%);border:0.5px solid rgba(255,255,255,0.12);padding:22px 26px;opacity:0;animation:fadeLeft .9s .5s ease forwards}
+.hb-label{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:#6b6b6b;margin-bottom:8px}
+.hb-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:30px;color:#fff;line-height:1}
+.hb-sub{font-size:10px;font-weight:300;color:#6b6b6b;margin-top:4px}
+.geo{position:absolute;right:48px;bottom:80px;opacity:.08}
+.stripe{border-top:0.5px solid rgba(255,255,255,0.08);border-bottom:0.5px solid rgba(255,255,255,0.08);display:grid;grid-template-columns:repeat(4,1fr)}
+.st-cell{padding:38px 0 38px 48px;border-right:0.5px solid rgba(255,255,255,0.08)}
+.st-cell:last-child{border-right:none}
+.st-num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:38px;letter-spacing:-.02em;color:#fff;line-height:1;margin-bottom:8px}
+.st-lbl{font-family:'Inter',sans-serif;font-weight:300;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#6b6b6b;line-height:1.6}
+.white-section{background:#fff;color:#000;padding:88px 48px}
+.ws-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:64px;gap:60px}
+.ws-eyebrow{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:#6b6b6b;margin-bottom:14px}
+.ws-title-bar{display:flex;align-items:flex-start;gap:14px}
+.ws-bar{width:3px;height:30px;background:#000;flex-shrink:0;margin-top:4px}
+.ws-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:34px;letter-spacing:-.02em;text-transform:uppercase;line-height:.96;color:#000}
+.ws-body{flex:1;max-width:440px;font-size:13.5px;color:#6b6b6b;line-height:1.8;padding-top:4px}
+.steps-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:0.5px solid rgba(0,0,0,0.1)}
+.step-col{padding:34px 26px 34px 0;border-right:0.5px solid rgba(0,0,0,0.08)}
+.step-col:first-child{padding-left:0}
+.step-col:last-child{border-right:none}
+.step-n{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;letter-spacing:.1em;color:rgba(0,0,0,0.2);margin-bottom:16px}
+.step-icon-w{margin-bottom:12px}
+.step-name-w{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#000;margin-bottom:8px}
+.step-desc-w{font-size:12px;color:#6b6b6b;line-height:1.65}
+.ia-section{background:#0d0d0d;border-top:0.5px solid rgba(255,255,255,0.06)}
+.ia-headline{padding:72px 48px 64px;border-bottom:0.5px solid rgba(255,255,255,0.07);display:flex;align-items:flex-end;justify-content:space-between;gap:60px}
+.ia-eyebrow{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:#6b6b6b;margin-bottom:20px}
+.ia-big-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(36px,4.5vw,56px);letter-spacing:-.02em;text-transform:uppercase;color:#fff;line-height:.94}
+.ia-big-title em{font-style:normal;color:rgba(255,255,255,0.25)}
+.ia-tagline{flex:0 0 380px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:500;color:#fff;line-height:1.55;border-left:2px solid rgba(255,255,255,0.12);padding-left:28px}
+.ia-tagline span{display:block;font-family:'Inter',sans-serif;font-weight:300;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#6b6b6b;margin-top:14px}
+.ia-cols{display:grid;grid-template-columns:repeat(3,1fr)}
+.ia-col{padding:48px;border-right:0.5px solid rgba(255,255,255,0.07);border-bottom:0.5px solid rgba(255,255,255,0.07)}
+.ia-col:last-child{border-right:none}
+.ia-col-num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;letter-spacing:.1em;color:rgba(255,255,255,0.18);margin-bottom:24px}
+.ia-col-icon{margin-bottom:20px;opacity:.5}
+.ia-col-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;letter-spacing:.02em;text-transform:uppercase;color:#fff;margin-bottom:14px;line-height:1.1}
+.ia-col-desc{font-size:13px;font-weight:300;color:#6b6b6b;line-height:1.75}
+.ia-col-desc strong{color:rgba(255,255,255,0.7);font-weight:400}
+.cta-section{background:#f4f3f0;color:#000;padding:96px 48px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.cta-label{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:#6b6b6b;margin-bottom:20px}
+.cta-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(34px,4vw,54px);letter-spacing:-.02em;text-transform:uppercase;color:#000;margin-bottom:40px;line-height:.95}
+.cta-btns{display:flex;gap:12px}
+.cta-black{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:#000;border:none;padding:16px 44px;cursor:pointer;text-decoration:none}
+.cta-black:hover{opacity:.82}
+.cta-border{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#000;background:transparent;border:0.5px solid rgba(0,0,0,0.25);padding:16px 44px;cursor:pointer;text-decoration:none;transition:border-color .2s}
+.cta-border:hover{border-color:#000}
+footer{background:#000;border-top:0.5px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:20px 48px}
+.foot-logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff}
+.foot-word{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;letter-spacing:-0.02em}
+.foot-tag{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:#6b6b6b}
+.foot-tag b{color:rgba(255,255,255,0.15);font-weight:400;margin:0 10px}
+.foot-copy{font-size:10px;font-weight:300;color:rgba(255,255,255,0.15)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeLeft{from{opacity:0;transform:translateX(22px)}to{opacity:1;transform:translateX(0)}}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.r1{transition-delay:.1s}.r2{transition-delay:.2s}.r3{transition-delay:.3s}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="logo-link">
+    <span class="logo-word">KORD</span>
+  </a>
+  <div class="nav-r">
+    <a href="login.html"    class="btn-login">Se connecter</a>
+    <a href="register.html" class="btn-signup">Créer un espace</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">
+    <div class="hb-label">Score KORD moyen</div>
+    <div class="hb-val" id="badge-score">0/100</div>
+    <div class="hb-sub">potentiel d'optimisation</div>
+  </div>
+  <svg class="geo" width="70" height="160" viewBox="0 0 70 160" fill="none">
+    <rect x="33" y="0" width="2" height="44" fill="white"/>
+    <line x1="4" y1="66" x2="54" y2="94" stroke="white" stroke-width="1.8" stroke-linecap="square"/>
+    <line x1="4" y1="122" x2="54" y2="94" stroke="white" stroke-width="1.8" stroke-linecap="square"/>
+    <rect x="24" y="138" width="2" height="22" fill="white"/>
+  </svg>
+  <div class="hero-tag">Plateforme d'audit opérationnel et supply chain</div>
+  <h1 class="hero-title">Performance<br><em>Opérationnelle</em></h1>
+  <p class="hero-sub">Stratégie <span>|</span> Logistique <span>|</span> Intelligence</p>
+  <div class="hero-ctas">
+    <a href="register.html" class="cta-main">Créer mon espace</a>
+    <a href="login.html"    class="cta-sec">Se connecter →</a>
+  </div>
+</section>
+
+<div class="stripe">
+  <div class="st-cell"><div class="st-num"><span class="count" data-target="18" data-prefix="+" data-suffix="%">+0%</span></div><div class="st-lbl">Marge récupérée<br>en moyenne</div></div>
+  <div class="st-cell"><div class="st-num"><span class="count" data-target="48" data-suffix="H">0H</span></div><div class="st-lbl">Analyse<br>express</div></div>
+  <div class="st-cell"><div class="st-num"><span class="count" data-target="100" data-suffix="%">0%</span></div><div class="st-lbl">Confidentialité<br>garantie</div></div>
+  <div class="st-cell"><div class="st-num">0€</div><div class="st-lbl">Engagement<br>sans risque</div></div>
+</div>
+
+<section class="white-section">
+  <div class="ws-top">
+    <div class="reveal">
+      <div class="ws-eyebrow">Comment ça fonctionne</div>
+      <div class="ws-title-bar"><div class="ws-bar"></div><h2 class="ws-title">Révéler les leviers<br>de profit cachés</h2></div>
+    </div>
+    <p class="ws-body reveal r1">KORD transforme vos données ERP et logistiques en insights actionnables. Déposez vos fichiers, notre équipe analyse vos flux et vous restitue un rapport priorisé sous 48 heures.</p>
+  </div>
+  <div class="steps-row">
+    <div class="step-col reveal"><div class="step-n">01</div><div class="step-icon-w"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="4" stroke="black" stroke-width="1.4"/><path d="M2 18c0-4 3.6-7 8-7s8 3 8 7" stroke="black" stroke-width="1.4" stroke-linecap="square"/></svg></div><div class="step-name-w">Inscription</div><div class="step-desc-w">Créez votre espace sécurisé en quelques secondes. Aucune intégration ERP requise.</div></div>
+    <div class="step-col reveal r1"><div class="step-n">02</div><div class="step-icon-w"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="1" stroke="black" stroke-width="1.4"/><path d="M10 6v8M6 10h8" stroke="black" stroke-width="1.4" stroke-linecap="square"/></svg></div><div class="step-name-w">Dépôt des données</div><div class="step-desc-w">Glissez vos exports CSV ou Excel dans votre espace client privé et sécurisé.</div></div>
+    <div class="step-col reveal r2"><div class="step-n">03</div><div class="step-icon-w"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><polyline points="2,15 7,8 12,11 18,4" stroke="black" stroke-width="1.4" stroke-linecap="square"/></svg></div><div class="step-name-w">Analyse KORD</div><div class="step-desc-w">Nos experts et nos algorithmes révèlent les failles invisibles dans vos flux opérationnels.</div></div>
+    <div class="step-col reveal r3"><div class="step-n">04</div><div class="step-icon-w"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="1" stroke="black" stroke-width="1.4"/><path d="M6 7h8M6 10h8M6 13h4" stroke="black" stroke-width="1.4" stroke-linecap="square"/></svg></div><div class="step-name-w">Restitution</div><div class="step-desc-w">Rapport structuré, Score KORD et priorités d'action concrètes sous 48 heures.</div></div>
+  </div>
+</section>
+
+<section class="ia-section">
+  <div class="ia-headline reveal">
+    <div>
+      <div class="ia-eyebrow">Au cœur de KORD</div>
+      <h2 class="ia-big-title">Ce que l'œil humain<br>ne voit <em>pas,</em><br>KORD le révèle.</h2>
+    </div>
+    <div class="ia-tagline">
+      Vos données contiennent des signaux que les outils classiques ignorent. KORD est construit pour les détecter, les quantifier et vous les restituer sous forme de décisions concrètes.
+      <span>Experts supply chain · Data analysts · Algorithmes avancés</span>
+    </div>
+  </div>
+  <div class="ia-cols">
+    <div class="ia-col reveal">
+      <div class="ia-col-num">01</div>
+      <div class="ia-col-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="11" stroke="white" stroke-width="1.5"/><circle cx="14" cy="14" r="4" stroke="white" stroke-width="1.5" stroke-dasharray="3 2"/><line x1="14" y1="3" x2="14" y2="7" stroke="white" stroke-width="1.5"/><line x1="14" y1="21" x2="14" y2="25" stroke="white" stroke-width="1.5"/><line x1="3" y1="14" x2="7" y2="14" stroke="white" stroke-width="1.5"/><line x1="21" y1="14" x2="25" y2="14" stroke="white" stroke-width="1.5"/></svg></div>
+      <h3 class="ia-col-title">Ce que vos outils<br>ne détectent pas</h3>
+      <p class="ia-col-desc">Nos algorithmes parcourent l'intégralité de vos données opérationnelles et font remonter <strong>ce que les rapports standards laissent dans l'ombre</strong> : anomalies silencieuses, dérives progressives, pertes structurelles enfouies dans vos flux.</p>
+    </div>
+    <div class="ia-col reveal r1">
+      <div class="ia-col-num">02</div>
+      <div class="ia-col-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="4" y="4" width="20" height="20" rx="1" stroke="white" stroke-width="1.5"/><polyline points="8,19 12,12 17,15 22,7" stroke="white" stroke-width="1.5" stroke-linecap="square"/><circle cx="22" cy="7" r="2.5" fill="white"/></svg></div>
+      <h3 class="ia-col-title">L'IA au service<br>de votre performance</h3>
+      <p class="ia-col-desc">L'intelligence artificielle de KORD analyse vos données en profondeur et <strong>identifie les leviers de cash récupérable</strong> en hiérarchisant vos priorités selon leur impact financier réel.</p>
+    </div>
+    <div class="ia-col reveal r2">
+      <div class="ia-col-num">03</div>
+      <div class="ia-col-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 3L4 7v8c0 6.6 4.2 12.4 10 14 5.8-1.6 10-7.4 10-14V7L14 3z" stroke="white" stroke-width="1.5"/><path d="M9 14l4 4 6-7" stroke="white" stroke-width="1.5" stroke-linecap="square"/></svg></div>
+      <h3 class="ia-col-title">La précision<br>de l'expert terrain</h3>
+      <p class="ia-col-desc">Derrière chaque analyse KORD, une équipe d'experts supply chain et data analysts valide chaque résultat. <strong>La technologie révèle. L'expertise contextualise.</strong> Vous recevez des conclusions fiables, prêtes à être actionnées.</p>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="cta-label reveal">Prêt à révéler votre potentiel ?</div>
+  <h2 class="cta-title reveal">Créez votre espace<br>KORD</h2>
+  <div class="cta-btns reveal">
+    <a href="register.html" class="cta-black">Démarrer maintenant</a>
+    <a href="login.html"    class="cta-border">J'ai déjà un compte</a>
+  </div>
+</section>
+
+<footer>
+  <a href="#" class="foot-logo">
+    <span class="foot-word">KORD</span>
+  </a>
+  <div class="foot-tag">Performance <b>|</b> Structure <b>|</b> Profit</div>
+  <div class="foot-copy">© KORD 2026 Tous droits réservés</div>
+</footer>
+
+<script>
+function animateCount(el){const t=parseInt(el.dataset.target),p=el.dataset.prefix||'',s=el.dataset.suffix||'';const steps=100;let c=0;const inc=t/steps;const timer=setInterval(()=>{c+=inc;if(c>=t){c=t;clearInterval(timer)}el.textContent=p+Math.round(c)+s;},16);}
+function animateBadge(){const el=document.getElementById('badge-score');let c=0;const t=setInterval(()=>{c++;el.textContent=c+'/100';if(c>=47)clearInterval(t);},30);}
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');obs.unobserve(x.target)}});},{threshold:0.15});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+new IntersectionObserver(e=>{if(e[0].isIntersecting)document.querySelector('.stripe').querySelectorAll('.count').forEach(animateCount);},{threshold:0.3}).observe(document.querySelector('.stripe'));
+setTimeout(animateBadge,600);
+</script>
+</body>
+</html>
