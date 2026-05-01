@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KORD — Espace client</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#000;--white:#fff;--near:#0d0d0d;--g400:#6b6b6b;--g200:#ccc;--border:rgba(255,255,255,0.07)}
+body{font-family:'Inter',sans-serif;font-weight:300;background:var(--near);color:var(--white);min-height:100vh;display:flex}
+
+/* SIDEBAR */
+.sidebar{width:240px;flex-shrink:0;background:var(--black);border-right:0.5px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100}
+.sb-logo{padding:26px 26px 22px;border-bottom:0.5px solid var(--border)}
+.sb-word{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;letter-spacing:-0.02em;color:var(--white);text-decoration:none;display:block}
+.sb-nav{flex:1;padding:18px 0}
+.sb-section{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,0.2);padding:22px 26px 10px}
+.sb-item{display:flex;align-items:center;gap:13px;padding:12px 26px;font-size:13px;font-weight:300;color:var(--g400);cursor:pointer;text-decoration:none;transition:color .15s,background .15s;border-left:2px solid transparent}
+.sb-item:hover{color:var(--white);background:rgba(255,255,255,0.03)}
+.sb-item.active{color:var(--white);border-left-color:var(--white);background:rgba(255,255,255,0.04)}
+.sb-item svg{flex-shrink:0;opacity:.5}
+.sb-item.active svg,.sb-item:hover svg{opacity:1}
+.sb-bottom{padding:18px 26px 26px;border-top:0.5px solid var(--border)}
+.sb-user-name{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:500;color:var(--white);margin-bottom:3px}
+.sb-user-company{font-size:12px;color:var(--g400);margin-bottom:16px}
+.sb-logout{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--g400);cursor:pointer;transition:color .15s}
+.sb-logout:hover{color:var(--white)}
+
+/* MAIN */
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{padding:0 44px;height:62px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border);background:var(--near);position:sticky;top:0;z-index:50}
+.topbar-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+.topbar-badge{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;border:0.5px solid var(--border);padding:7px 16px;color:var(--g400)}
+.content{padding:44px;flex:1;animation:fadeUp .4s ease}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);border:0.5px solid var(--border);margin-bottom:36px}
+.stat-box{padding:28px 32px;border-right:0.5px solid var(--border)}
+.stat-box:last-child{border-right:none}
+.stat-box-label{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--g400);margin-bottom:12px}
+.stat-box-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:32px;letter-spacing:-.02em;color:var(--white);line-height:1}
+.stat-box-sub{font-size:11px;color:var(--g400);margin-top:5px}
+
+/* Cards */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-bottom:26px}
+.card{background:var(--black);border:0.5px solid var(--border)}
+.card-header{padding:20px 26px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.card-body{padding:26px}
+
+/* Upload */
+.upload-zone{border:0.5px dashed rgba(255,255,255,0.12);padding:44px 26px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative}
+.upload-zone:hover{border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.02)}
+.upload-zone.drag-over{border-color:var(--white);background:rgba(255,255,255,0.04)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{opacity:.3;margin-bottom:16px}
+.upload-text{font-size:13px;color:var(--g400);margin-bottom:5px}
+.upload-hint{font-size:11px;color:rgba(255,255,255,0.2)}
+.upload-btn{display:inline-block;margin-top:18px;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--white);background:transparent;border:0.5px solid rgba(255,255,255,0.25);padding:11px 26px;cursor:pointer;pointer-events:none}
+.upload-progress{display:none;margin-top:18px}
+.upload-progress.show{display:block}
+.progress-bar{height:2px;background:rgba(255,255,255,0.1);margin-bottom:9px}
+.progress-fill{height:100%;background:var(--white);width:0%;transition:width .3s}
+.progress-text{font-size:11px;color:var(--g400)}
+
+/* Files */
+.file-list{display:flex;flex-direction:column}
+.file-row{display:flex;align-items:center;gap:15px;padding:15px 0;border-bottom:0.5px solid var(--border)}
+.file-row:last-child{border-bottom:none}
+.file-icon{flex-shrink:0;opacity:.4}
+.file-info{flex:1;min-width:0}
+.file-name{font-size:13px;font-weight:400;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.file-meta{font-size:11px;color:var(--g400)}
+.badge{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:4px 11px;flex-shrink:0}
+.badge-wait{border:0.5px solid rgba(255,255,255,0.1);color:var(--g400)}
+.badge-wip{background:rgba(255,255,255,0.06);color:var(--g200)}
+.badge-done{background:rgba(255,255,255,0.12);color:var(--white)}
+.file-action{font-size:11px;color:var(--g400);cursor:pointer;flex-shrink:0;transition:color .15s}
+.file-action:hover{color:var(--white)}
+
+/* Empty */
+.empty-state{padding:44px 0;text-align:center}
+.empty-icon{opacity:.2;margin-bottom:16px}
+.empty-text{font-size:13px;color:var(--g400)}
+
+/* Reports */
+.report-row{display:flex;align-items:center;gap:18px;padding:18px 0;border-bottom:0.5px solid var(--border)}
+.report-row:last-child{border-bottom:none}
+.report-icon{flex-shrink:0;opacity:.5}
+.report-info{flex:1}
+.report-name{font-size:13px;font-weight:400;color:var(--white);margin-bottom:3px}
+.report-meta{font-size:11px;color:var(--g400)}
+.report-score{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:var(--white);flex-shrink:0}
+.report-dl{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--white);border:0.5px solid rgba(255,255,255,0.2);padding:9px 18px;cursor:pointer;flex-shrink:0;transition:background .2s;text-decoration:none}
+.report-dl:hover{background:rgba(255,255,255,0.06)}
+
+.btn-sm{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--white);background:transparent;border:0.5px solid rgba(255,255,255,0.2);padding:8px 18px;cursor:pointer;transition:border-color .2s}
+.btn-sm:hover{border-color:var(--white)}
+
+.toast{position:fixed;bottom:34px;right:34px;z-index:999;background:var(--white);color:var(--black);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;padding:16px 26px;transform:translateY(20px);opacity:0;transition:all .3s ease;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sb-logo"><a href="index.html" class="sb-word">KORD</a></div>
+  <nav class="sb-nav">
+    <div class="sb-section">Espace client</div>
+    <a class="sb-item active" onclick="showPage('dashboard')">
+      <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" stroke="white" stroke-width="1.2"/><rect x="8" y="1" width="5" height="5" stroke="white" stroke-width="1.2"/><rect x="1" y="8" width="5" height="5" stroke="white" stroke-width="1.2"/><rect x="8" y="8" width="5" height="5" stroke="white" stroke-width="1.2"/></svg>
+      Tableau de bord
+    </a>
+    <a class="sb-item" onclick="showPage('depot')">
+      <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="1" stroke="white" stroke-width="1.2"/><path d="M7 4v6M4 7h6" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Déposer des fichiers
+    </a>
+    <a class="sb-item" onclick="showPage('analyses')">
+      <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><polyline points="1,10 4,6 7,8 11,2" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Mes analyses
+    </a>
+    <a class="sb-item" onclick="showPage('rapports')">
+      <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="1" stroke="white" stroke-width="1.2"/><path d="M4 5h6M4 7h6M4 9h3" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Mes rapports
+    </a>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-user-name" id="sb-name">Chargement...</div>
+    <div class="sb-user-company" id="sb-company"></div>
+    <div class="sb-logout" onclick="logout()">
+      <svg width="13" height="13" viewBox="0 0 12 12" fill="none"><path d="M8 2h2v8H8M5 8l3-2-3-2" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Déconnexion
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="page-title">Tableau de bord</span>
+    <div class="topbar-badge" id="topbar-date"></div>
+  </div>
+
+  <div class="content" id="content">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard">
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-box-label">Analyses en cours</div><div class="stat-box-val" id="stat-wip">0</div><div class="stat-box-sub">en traitement</div></div>
+        <div class="stat-box"><div class="stat-box-label">Analyses terminées</div><div class="stat-box-val" id="stat-done">0</div><div class="stat-box-sub">rapports disponibles</div></div>
+        <div class="stat-box"><div class="stat-box-label">Fichiers déposés</div><div class="stat-box-val" id="stat-files">0</div><div class="stat-box-sub">au total</div></div>
+        <div class="stat-box"><div class="stat-box-label">Dernier dépôt</div><div class="stat-box-val" style="font-size:18px" id="stat-last">Aucun</div><div class="stat-box-sub">fichier</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Déposer un fichier</span></div>
+          <div class="card-body">
+            <div class="upload-zone" id="drop-dash">
+              <input type="file" id="file-input-dash" accept=".csv,.xlsx,.xls" onchange="handleFile(this.files[0])"/>
+              <div class="upload-icon"><svg width="30" height="30" viewBox="0 0 28 28" fill="none"><path d="M14 20V8M14 8l-5 5M14 8l5 5" stroke="white" stroke-width="1.5" stroke-linecap="square"/><rect x="2" y="2" width="24" height="24" rx="1" stroke="white" stroke-width="1" opacity="0.3"/></svg></div>
+              <div class="upload-text">Glissez votre fichier ici</div>
+              <div class="upload-hint">CSV, XLSX — 50 Mo max</div>
+              <div class="upload-btn">Parcourir</div>
+            </div>
+            <div class="upload-progress" id="upload-progress"><div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div><div class="progress-text" id="progress-text">Envoi en cours...</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Fichiers récents</span><button class="btn-sm" onclick="showPage('analyses')">Voir tout</button></div>
+          <div class="card-body"><div id="recent-files"><div class="empty-state"><div class="empty-icon"><svg width="30" height="30" viewBox="0 0 28 28" fill="none"><rect x="4" y="2" width="20" height="24" rx="1" stroke="white" stroke-width="1.4"/><path d="M9 10h10M9 14h10M9 18h6" stroke="white" stroke-width="1.4" stroke-linecap="square"/></svg></div><div class="empty-text">Aucun fichier déposé pour l'instant</div></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEPOT -->
+    <div id="page-depot" style="display:none">
+      <div class="card" style="max-width:620px">
+        <div class="card-header"><span class="card-title">Déposer vos données</span></div>
+        <div class="card-body">
+          <p style="font-size:14px;color:#6b6b6b;margin-bottom:26px;line-height:1.7">Déposez vos fichiers d'export : stock, commandes, expéditions, achats, fournisseurs. Notre équipe les analyse et vous restitue un rapport structuré et priorisé.</p>
+          <div class="upload-zone" id="drop-depot">
+            <input type="file" id="file-input-depot" accept=".csv,.xlsx,.xls" onchange="handleFile(this.files[0])"/>
+            <div class="upload-icon"><svg width="34" height="34" viewBox="0 0 32 32" fill="none"><path d="M16 24V10M16 10l-6 6M16 10l6 6" stroke="white" stroke-width="1.5" stroke-linecap="square"/><rect x="2" y="2" width="28" height="28" rx="1" stroke="white" stroke-width="1" opacity="0.3"/></svg></div>
+            <div class="upload-text">Glissez vos fichiers ici ou cliquez pour parcourir</div>
+            <div class="upload-hint">CSV, XLSX — 50 Mo maximum par fichier</div>
+            <div class="upload-btn">Choisir un fichier</div>
+          </div>
+          <div class="upload-progress" id="upload-progress-2"><div class="progress-bar"><div class="progress-fill" id="progress-fill-2"></div></div><div class="progress-text" id="progress-text-2">Envoi en cours...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYSES -->
+    <div id="page-analyses" style="display:none">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Mes fichiers et analyses</span></div>
+        <div class="card-body"><div id="all-files"><div class="empty-state"><div class="empty-icon"><svg width="30" height="30" viewBox="0 0 28 28" fill="none"><polyline points="2,20 8,12 14,16 20,8 26,4" stroke="white" stroke-width="1.4" stroke-linecap="square"/></svg></div><div class="empty-text">Aucune analyse pour l'instant. Déposez votre premier fichier.</div></div></div></div>
+      </div>
+    </div>
+
+    <!-- RAPPORTS -->
+    <div id="page-rapports" style="display:none">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Mes rapports KORD</span></div>
+        <div class="card-body"><div id="all-reports"><div class="empty-state"><div class="empty-icon"><svg width="30" height="30" viewBox="0 0 28 28" fill="none"><rect x="4" y="2" width="20" height="24" rx="1" stroke="white" stroke-width="1.4"/><path d="M9 9h10M9 13h10M9 17h6" stroke="white" stroke-width="1.4" stroke-linecap="square"/></svg></div><div class="empty-text">Vos rapports apparaîtront ici une fois les analyses terminées.</div></div></div></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL  = 'COLLE_TON_URL_ICI'
+const SUPABASE_ANON = 'COLLE_TA_CLE_ANON_ICI'
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON)
+let currentUser = null
+
+window.onload = async () => {
+  const{data:{session}}=await sb.auth.getSession()
+  if(!session){window.location.href='login.html';return}
+  currentUser=session.user
+  const{data:profile}=await sb.from('profiles').select('*').eq('id',currentUser.id).single()
+  if(profile){document.getElementById('sb-name').textContent=profile.contact_name||'Mon compte';document.getElementById('sb-company').textContent=profile.company_name||''}
+  else{document.getElementById('sb-name').textContent=currentUser.email}
+  const now=new Date()
+  document.getElementById('topbar-date').textContent=now.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
+  await loadAll()
+  setupDragDrop('drop-dash')
+  setupDragDrop('drop-depot')
+}
+
+const pages=['dashboard','depot','analyses','rapports']
+const titles={dashboard:'Tableau de bord',depot:'Déposer des fichiers',analyses:'Mes analyses',rapports:'Mes rapports'}
+function showPage(name){
+  pages.forEach(p=>{document.getElementById('page-'+p).style.display=p===name?'block':'none'})
+  document.querySelectorAll('.sb-item').forEach((el,i)=>{el.classList.toggle('active',pages[i]===name)})
+  document.getElementById('page-title').textContent=titles[name]
+}
+
+async function loadAll(){
+  const{data:submissions}=await sb.from('submissions').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})
+  const{data:reports}=await sb.from('reports').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})
+  updateStats(submissions||[],reports||[])
+  renderRecentFiles(submissions||[])
+  renderAllFiles(submissions||[])
+  renderReports(reports||[])
+}
+
+function updateStats(subs,reports){
+  document.getElementById('stat-wip').textContent=subs.filter(s=>s.status==='en_analyse').length
+  document.getElementById('stat-done').textContent=subs.filter(s=>s.status==='terminé').length
+  document.getElementById('stat-files').textContent=subs.length
+  if(subs.length>0){const last=new Date(subs[0].created_at);document.getElementById('stat-last').textContent=last.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}
+}
+
+function renderRecentFiles(subs){
+  const el=document.getElementById('recent-files')
+  if(!subs.length)return
+  el.innerHTML=subs.slice(0,3).map(s=>fileRowHTML(s)).join('')
+}
+
+function renderAllFiles(subs){
+  const el=document.getElementById('all-files')
+  if(!subs.length){el.innerHTML='<div class="empty-state"><div class="empty-text">Aucune analyse pour l\'instant.</div></div>';return}
+  el.innerHTML='<div class="file-list">'+subs.map(s=>fileRowHTML(s)).join('')+'</div>'
+}
+
+function fileRowHTML(s){
+  const date=new Date(s.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})
+  const ext=s.file_name.split('.').pop().toUpperCase()
+  const badge=s.status==='terminé'?'<span class="badge badge-done">Terminée</span>':s.status==='en_analyse'?'<span class="badge badge-wip">En analyse</span>':'<span class="badge badge-wait">En attente</span>'
+  return`<div class="file-row"><div class="file-icon"><svg width="15" height="17" viewBox="0 0 14 16" fill="none"><rect x="1" y="1" width="12" height="14" rx="1" stroke="white" stroke-width="1.2"/><path d="M4 5h6M4 8h6M4 11h3" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg></div><div class="file-info"><div class="file-name">${s.file_name}</div><div class="file-meta">${ext} · ${date}</div></div>${badge}${s.status==='terminé'?'<span class="file-action" onclick="showPage(\'rapports\')">Voir le rapport →</span>':''}</div>`
+}
+
+function renderReports(reports){
+  const el=document.getElementById('all-reports')
+  if(!reports.length)return
+  el.innerHTML=reports.map(r=>{
+    const date=new Date(r.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
+    return`<div class="report-row"><div class="report-icon"><svg width="22" height="26" viewBox="0 0 20 24" fill="none"><rect x="1" y="1" width="18" height="22" rx="1" stroke="white" stroke-width="1.3"/><path d="M5 7h10M5 11h10M5 15h6" stroke="white" stroke-width="1.3" stroke-linecap="square"/></svg></div><div class="report-info"><div class="report-name">Rapport KORD — ${date}</div><div class="report-meta">${r.summary?r.summary.substring(0,80)+'...':'Analyse complète disponible'}</div></div><div class="report-score">${r.score_kord||0}<span style="font-size:13px;color:#6b6b6b">/100</span></div>${r.report_url?`<a class="report-dl" href="${r.report_url}" target="_blank">Télécharger</a>`:'<span class="report-dl" style="opacity:.3;cursor:default">En cours</span>'}</div>`
+  }).join('')
+}
+
+async function handleFile(file){
+  if(!file)return
+  if(file.size>50*1024*1024){showToast('Fichier trop volumineux (50 Mo max)');return}
+  const ext=file.name.split('.').pop().toLowerCase()
+  if(!['csv','xlsx','xls'].includes(ext)){showToast('Format non supporté. CSV ou XLSX uniquement.');return}
+  showProgress(true,1)
+  try{
+    const path=`${currentUser.id}/${Date.now()}_${file.name}`
+    showProgress(true,30)
+    const{error:uploadError}=await sb.storage.from('client-files').upload(path,file)
+    if(uploadError)throw uploadError
+    showProgress(true,70)
+    const subData = await sb.from('submissions').insert({
+  user_id:   currentUser.id,
+  file_name: file.name,
+  file_path: path,
+  status:    'en_attente'
+}).select()
+    showProgress(true,100)
+    setTimeout(()=>{showProgress(false,0)},600)
+    // Déclencher l'analyse KORD
+fetch('https://kord-api-1.onrender.com/', {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    submission_id: subData.data[0].id,
+    file_path: path,
+    file_name: file.name,
+    user_id: currentUser.id
+  })
+})
+    showToast('Fichier déposé avec succès')
+    await loadAll()
+  }catch(e){showProgress(false,0);showToast('Erreur lors de l\'envoi. Réessayez.')}
+}
+
+function showProgress(show,pct){
+  ;['upload-progress','upload-progress-2'].forEach(id=>{
+    const el=document.getElementById(id)
+    if(!el)return
+    el.classList.toggle('show',show)
+    el.querySelector('.progress-fill').style.width=pct+'%'
+    el.querySelector('.progress-text').textContent=pct<100?`Envoi en cours... ${pct}%`:'Fichier reçu.'
+  })
+}
+
+function setupDragDrop(id){
+  const el=document.getElementById(id)
+  if(!el)return
+  el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('drag-over')})
+  el.addEventListener('dragleave',()=>el.classList.remove('drag-over'))
+  el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)handleFile(f)})
+}
+
+async function logout(){await sb.auth.signOut();window.location.href='login.html'}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+</script>
+</body>
+</html>
