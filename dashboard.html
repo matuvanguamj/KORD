@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Empêche le cache — sécurité back button -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>KORD — Espace client</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#000;--white:#fff;--near:#0d0d0d;--g400:#6b6b6b;--g200:#ccc;--border:rgba(255,255,255,0.07)}
+body{font-family:'Inter',sans-serif;font-weight:300;background:var(--near);color:var(--white);min-height:100vh;display:flex}
+
+/* SIDEBAR */
+.sidebar{width:240px;flex-shrink:0;background:var(--black);border-right:0.5px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100}
+.sb-logo{padding:26px 26px 22px;border-bottom:0.5px solid var(--border)}
+.sb-word{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;letter-spacing:-0.02em;color:var(--white);text-decoration:none;display:block}
+.sb-nav{flex:1;padding:18px 0}
+.sb-section{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,0.2);padding:22px 26px 10px}
+.sb-item{display:flex;align-items:center;gap:13px;padding:12px 26px;font-size:13px;font-weight:300;color:var(--g400);cursor:pointer;text-decoration:none;transition:color .15s,background .15s;border-left:2px solid transparent;user-select:none}
+.sb-item:hover{color:var(--white);background:rgba(255,255,255,0.03)}
+.sb-item.active{color:var(--white);border-left-color:var(--white);background:rgba(255,255,255,0.04)}
+.sb-item svg{flex-shrink:0;opacity:.5}
+.sb-item.active svg,.sb-item:hover svg{opacity:1}
+.sb-bottom{padding:18px 26px 26px;border-top:0.5px solid var(--border)}
+.sb-user-name{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:500;color:var(--white);margin-bottom:3px}
+.sb-user-company{font-size:12px;color:var(--g400);margin-bottom:16px}
+.sb-logout{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--g400);cursor:pointer;transition:color .15s}
+.sb-logout:hover{color:var(--white)}
+
+/* MAIN */
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{padding:0 44px;height:62px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border);background:var(--near);position:sticky;top:0;z-index:50}
+.topbar-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+.topbar-badge{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;border:0.5px solid var(--border);padding:7px 16px;color:var(--g400)}
+.content{padding:44px;flex:1}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);border:0.5px solid var(--border);margin-bottom:36px}
+.stat-box{padding:28px 32px;border-right:0.5px solid var(--border)}
+.stat-box:last-child{border-right:none}
+.stat-box-label{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--g400);margin-bottom:12px}
+.stat-box-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:32px;letter-spacing:-.02em;color:var(--white);line-height:1}
+.stat-box-sub{font-size:11px;color:var(--g400);margin-top:5px}
+
+/* Cards */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-bottom:26px}
+.card{background:var(--black);border:0.5px solid var(--border)}
+.card-header{padding:20px 26px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.card-body{padding:26px}
+
+/* Upload */
+.upload-zone{border:0.5px dashed rgba(255,255,255,0.12);padding:44px 26px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative}
+.upload-zone:hover,.upload-zone.drag-over{border-color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.03)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{opacity:.3;margin-bottom:16px}
+.upload-text{font-size:13px;color:var(--g400);margin-bottom:5px}
+.upload-hint{font-size:11px;color:rgba(255,255,255,0.2)}
+.upload-btn-label{display:inline-block;margin-top:18px;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--white);background:transparent;border:0.5px solid rgba(255,255,255,0.25);padding:11px 26px;cursor:pointer;pointer-events:none}
+
+/* Queue fichiers */
+.upload-queue{margin-top:16px;display:none}
+.upload-queue.show{display:block}
+.queue-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid rgba(255,255,255,0.05)}
+.queue-item:last-child{border-bottom:none}
+.queue-name{font-size:12px;color:var(--white)}
+.queue-status{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--g400)}
+.queue-status.uploading{color:var(--g200)}
+.queue-status.done{color:var(--white)}
+.queue-status.error{color:#e03e3e}
+
+/* Files */
+.file-list{display:flex;flex-direction:column}
+.file-row{display:flex;align-items:center;gap:15px;padding:15px 0;border-bottom:0.5px solid var(--border)}
+.file-row:last-child{border-bottom:none}
+.file-icon{flex-shrink:0;opacity:.4}
+.file-info{flex:1;min-width:0}
+.file-name{font-size:13px;font-weight:400;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.file-meta{font-size:11px;color:var(--g400)}
+.badge{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:4px 11px;flex-shrink:0}
+.badge-wait{border:0.5px solid rgba(255,255,255,0.1);color:var(--g400)}
+.badge-wip{background:rgba(255,255,255,0.06);color:var(--g200)}
+.badge-done{background:rgba(255,255,255,0.12);color:var(--white)}
+.file-action{font-size:11px;color:var(--g400);cursor:pointer;flex-shrink:0;transition:color .15s;text-decoration:none}
+.file-action:hover{color:var(--white)}
+
+/* Empty */
+.empty-state{padding:44px 0;text-align:center}
+.empty-text{font-size:13px;color:var(--g400)}
+
+/* Reports */
+.report-row{display:flex;align-items:center;gap:18px;padding:18px 0;border-bottom:0.5px solid var(--border)}
+.report-row:last-child{border-bottom:none}
+.report-info{flex:1}
+.report-name{font-size:13px;font-weight:400;color:var(--white);margin-bottom:3px}
+.report-meta{font-size:11px;color:var(--g400)}
+.report-score{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:var(--white);flex-shrink:0}
+.report-dl{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--white);border:0.5px solid rgba(255,255,255,0.2);padding:9px 18px;cursor:pointer;flex-shrink:0;text-decoration:none;transition:background .2s}
+.report-dl:hover{background:rgba(255,255,255,0.06)}
+
+.btn-sm{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--white);background:transparent;border:0.5px solid rgba(255,255,255,0.2);padding:8px 18px;cursor:pointer;transition:border-color .2s}
+.btn-sm:hover{border-color:var(--white)}
+
+/* Toast */
+.toast{position:fixed;bottom:34px;right:34px;z-index:999;background:var(--white);color:var(--black);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;padding:16px 26px;transform:translateY(20px);opacity:0;transition:all .3s ease;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.error{background:#e03e3e;color:var(--white)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.content{animation:fadeUp .4s ease}
+
+/* Page hidden */
+.page{display:none}
+.page.active{display:block}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sb-logo"><a href="index.html" class="sb-word">KORD</a></div>
+  <nav class="sb-nav">
+    <div class="sb-section">Espace client</div>
+    <div class="sb-item active" data-page="dashboard">
+      <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" stroke="white" stroke-width="1.2"/><rect x="8" y="1" width="5" height="5" stroke="white" stroke-width="1.2"/><rect x="1" y="8" width="5" height="5" stroke="white" stroke-width="1.2"/><rect x="8" y="8" width="5" height="5" stroke="white" stroke-width="1.2"/></svg>
+      Tableau de bord
+    </div>
+    <div class="sb-item" data-page="depot">
+      <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="1" stroke="white" stroke-width="1.2"/><path d="M7 4v6M4 7h6" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Déposer des fichiers
+    </div>
+    <div class="sb-item" data-page="analyses">
+      <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><polyline points="1,10 4,6 7,8 11,2" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Mes analyses
+    </div>
+    <div class="sb-item" data-page="rapports">
+      <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="1" stroke="white" stroke-width="1.2"/><path d="M4 5h6M4 7h6M4 9h3" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Mes rapports
+    </div>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-user-name" id="sb-name"></div>
+    <div class="sb-user-company" id="sb-company"></div>
+    <div class="sb-logout" onclick="logout()">
+      <svg width="13" height="13" viewBox="0 0 12 12" fill="none"><path d="M8 2h2v8H8M5 8l3-2-3-2" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Déconnexion
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="page-title">Tableau de bord</span>
+    <div class="topbar-badge" id="topbar-date"></div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-box-label">Analyses en cours</div><div class="stat-box-val" id="stat-wip">0</div><div class="stat-box-sub">en traitement</div></div>
+        <div class="stat-box"><div class="stat-box-label">Analyses terminées</div><div class="stat-box-val" id="stat-done">0</div><div class="stat-box-sub">rapports disponibles</div></div>
+        <div class="stat-box"><div class="stat-box-label">Fichiers déposés</div><div class="stat-box-val" id="stat-files">0</div><div class="stat-box-sub">au total</div></div>
+        <div class="stat-box"><div class="stat-box-label">Dernier dépôt</div><div class="stat-box-val" style="font-size:18px" id="stat-last">Aucun</div><div class="stat-box-sub">fichier</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Déposer un fichier</span></div>
+          <div class="card-body">
+            <div class="upload-zone" id="drop-dash">
+              <input type="file" id="file-input-dash" accept=".csv,.xlsx,.xls" multiple onchange="handleFiles(this.files, 'dash')"/>
+              <div class="upload-icon"><svg width="30" height="30" viewBox="0 0 28 28" fill="none"><path d="M14 20V8M14 8l-5 5M14 8l5 5" stroke="white" stroke-width="1.5" stroke-linecap="square"/><rect x="2" y="2" width="24" height="24" rx="1" stroke="white" stroke-width="1" opacity="0.3"/></svg></div>
+              <div class="upload-text">Glissez vos fichiers ici</div>
+              <div class="upload-hint">CSV, XLSX — plusieurs fichiers acceptés — 50 Mo max par fichier</div>
+              <div class="upload-btn-label">Parcourir</div>
+            </div>
+            <div class="upload-queue" id="queue-dash"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Fichiers récents</span><button class="btn-sm" onclick="showPage('analyses')">Voir tout</button></div>
+          <div class="card-body"><div id="recent-files"><div class="empty-state"><div class="empty-text">Aucun fichier déposé pour l'instant</div></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEPOT -->
+    <div id="page-depot" class="page">
+      <div class="card" style="max-width:680px">
+        <div class="card-header"><span class="card-title">Déposer vos données</span></div>
+        <div class="card-body">
+          <p style="font-size:14px;color:#6b6b6b;margin-bottom:26px;line-height:1.7">Déposez un ou plusieurs fichiers d'export : stock, commandes, expéditions, achats, fournisseurs. Vous pouvez sélectionner plusieurs fichiers en même temps.</p>
+          <div class="upload-zone" id="drop-depot">
+            <input type="file" id="file-input-depot" accept=".csv,.xlsx,.xls" multiple onchange="handleFiles(this.files, 'depot')"/>
+            <div class="upload-icon"><svg width="34" height="34" viewBox="0 0 32 32" fill="none"><path d="M16 24V10M16 10l-6 6M16 10l6 6" stroke="white" stroke-width="1.5" stroke-linecap="square"/><rect x="2" y="2" width="28" height="28" rx="1" stroke="white" stroke-width="1" opacity="0.3"/></svg></div>
+            <div class="upload-text">Glissez vos fichiers ici ou cliquez pour parcourir</div>
+            <div class="upload-hint">CSV, XLSX — plusieurs fichiers acceptés — 50 Mo max par fichier</div>
+            <div class="upload-btn-label">Choisir les fichiers</div>
+          </div>
+          <div class="upload-queue" id="queue-depot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYSES -->
+    <div id="page-analyses" class="page">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Mes fichiers et analyses</span></div>
+        <div class="card-body"><div id="all-files"><div class="empty-state"><div class="empty-text">Aucune analyse pour l'instant. Déposez votre premier fichier.</div></div></div></div>
+      </div>
+    </div>
+
+    <!-- RAPPORTS -->
+    <div id="page-rapports" class="page">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Mes rapports KORD</span></div>
+        <div class="card-body"><div id="all-reports"><div class="empty-state"><div class="empty-text">Vos rapports apparaîtront ici une fois les analyses terminées.</div></div></div></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ══════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════
+const SUPABASE_URL  = 'https://dtnkqxbyvnsybddbyelv.supabase.co'
+const SUPABASE_ANON = 'sb_publishable_RqkmwDHNRAmxWvIwiBq39w_EGRyJT2f'
+const API_URL       = 'https://kord-api-1.onrender.com'  // ex: https://kord-api.onrender.com
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON)
+let currentUser = null
+
+// ══════════════════════════════════════
+//  SÉCURITÉ — Empêche retour arrière
+// ══════════════════════════════════════
+window.history.pushState(null, '', window.location.href)
+window.addEventListener('popstate', () => {
+  window.history.pushState(null, '', window.location.href)
+})
+
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
+window.onload = async () => {
+  // Vérifier session
+  const { data: { session } } = await sb.auth.getSession()
+  if (!session) { window.location.replace('login.html'); return }
+
+  currentUser = session.user
+
+  // Charger profil
+  const { data: profile } = await sb.from('profiles')
+    .select('*').eq('id', currentUser.id).single()
+
+  document.getElementById('sb-name').textContent =
+    profile?.contact_name || currentUser.email
+  document.getElementById('sb-company').textContent =
+    profile?.company_name || ''
+
+  // Date
+  document.getElementById('topbar-date').textContent =
+    new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' })
+
+  // Navigation
+  document.querySelectorAll('.sb-item').forEach(item => {
+    item.addEventListener('click', () => showPage(item.dataset.page))
+  })
+
+  // Drag & drop
+  setupDragDrop('drop-dash',  'dash')
+  setupDragDrop('drop-depot', 'depot')
+
+  // Charger données
+  await loadAll()
+}
+
+// ══════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════
+const PAGE_TITLES = {
+  dashboard: 'Tableau de bord',
+  depot:     'Déposer des fichiers',
+  analyses:  'Mes analyses',
+  rapports:  'Mes rapports'
+}
+
+function showPage(name) {
+  // Cacher toutes les pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'))
+  // Afficher la bonne
+  const target = document.getElementById('page-' + name)
+  if (target) target.classList.add('active')
+  // Mettre à jour sidebar
+  document.querySelectorAll('.sb-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.page === name)
+  })
+  // Titre
+  document.getElementById('page-title').textContent = PAGE_TITLES[name] || ''
+  // Recharger si nécessaire
+  if (name === 'analyses' || name === 'rapports') loadAll()
+}
+
+// ══════════════════════════════════════
+//  CHARGEMENT DONNÉES
+// ══════════════════════════════════════
+async function loadAll() {
+  const [{ data: subs }, { data: reports }] = await Promise.all([
+    sb.from('submissions').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }),
+    sb.from('reports').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false })
+  ])
+
+  const s = subs || []
+  const r = reports || []
+
+  // Stats
+  document.getElementById('stat-wip').textContent   = s.filter(x => x.status === 'en_analyse').length
+  document.getElementById('stat-done').textContent  = s.filter(x => x.status === 'terminé').length
+  document.getElementById('stat-files').textContent = s.length
+  if (s.length > 0) {
+    document.getElementById('stat-last').textContent =
+      new Date(s[0].created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short' })
+  }
+
+  renderRecentFiles(s.slice(0, 3))
+  renderAllFiles(s)
+  renderReports(r)
+}
+
+// ══════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════
+function fileRowHTML(s) {
+  const date = new Date(s.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
+  const ext  = s.file_name.split('.').pop().toUpperCase()
+  const badge = s.status === 'terminé'
+    ? '<span class="badge badge-done">Terminée</span>'
+    : s.status === 'en_analyse'
+    ? '<span class="badge badge-wip">En analyse</span>'
+    : '<span class="badge badge-wait">En attente</span>'
+  const action = s.status === 'terminé'
+    ? `<span class="file-action" onclick="showPage('rapports')">Voir le rapport →</span>`
+    : ''
+  return `
+    <div class="file-row">
+      <div class="file-icon"><svg width="15" height="17" viewBox="0 0 14 16" fill="none"><rect x="1" y="1" width="12" height="14" rx="1" stroke="white" stroke-width="1.2"/><path d="M4 5h6M4 8h6M4 11h3" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg></div>
+      <div class="file-info">
+        <div class="file-name">${s.file_name}</div>
+        <div class="file-meta">${ext} · ${date}</div>
+      </div>
+      ${badge}
+      ${action}
+    </div>`
+}
+
+function renderRecentFiles(subs) {
+  const el = document.getElementById('recent-files')
+  if (!subs.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-text">Aucun fichier déposé pour l\'instant</div></div>'
+    return
+  }
+  el.innerHTML = '<div class="file-list">' + subs.map(fileRowHTML).join('') + '</div>'
+}
+
+function renderAllFiles(subs) {
+  const el = document.getElementById('all-files')
+  if (!subs.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-text">Aucun fichier déposé pour l\'instant.</div></div>'
+    return
+  }
+  el.innerHTML = '<div class="file-list">' + subs.map(fileRowHTML).join('') + '</div>'
+}
+
+function renderReports(reports) {
+  const el = document.getElementById('all-reports')
+  if (!reports.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-text">Vos rapports apparaîtront ici une fois les analyses terminées.</div></div>'
+    return
+  }
+  el.innerHTML = reports.map(r => {
+    const date = new Date(r.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' })
+    return `
+      <div class="report-row">
+        <div class="report-info">
+          <div class="report-name">Rapport KORD — ${date}</div>
+          <div class="report-meta">${r.summary ? r.summary.substring(0, 90) + '...' : 'Analyse disponible'}</div>
+        </div>
+        <div class="report-score">${r.score_kord || 0}<span style="font-size:13px;color:#6b6b6b">/100</span></div>
+        ${r.report_url
+          ? `<a class="report-dl" href="${r.report_url}" target="_blank">Télécharger</a>`
+          : '<span class="report-dl" style="opacity:.3;cursor:default">En cours</span>'}
+      </div>`
+  }).join('')
+}
+
+// ══════════════════════════════════════
+//  UPLOAD — MULTI-FICHIERS
+// ══════════════════════════════════════
+async function handleFiles(files, zone) {
+  if (!files || files.length === 0) return
+
+  const queueEl = document.getElementById('queue-' + zone)
+  queueEl.classList.add('show')
+  queueEl.innerHTML = ''
+
+  // Traiter chaque fichier
+  for (const file of Array.from(files)) {
+    await uploadSingleFile(file, queueEl)
+  }
+
+  // Recharger la liste
+  await loadAll()
+}
+
+async function uploadSingleFile(file, queueEl) {
+  // Vérifications
+  if (file.size > 50 * 1024 * 1024) {
+    addQueueItem(queueEl, file.name, 'error', 'Trop volumineux (50 Mo max)')
+    return
+  }
+  const ext = file.name.split('.').pop().toLowerCase()
+  if (!['csv', 'xlsx', 'xls'].includes(ext)) {
+    addQueueItem(queueEl, file.name, 'error', 'Format non supporté')
+    return
+  }
+
+  const itemEl = addQueueItem(queueEl, file.name, 'uploading', 'Envoi en cours...')
+
+  try {
+    // 1. Upload Supabase Storage
+    const path = `${currentUser.id}/${Date.now()}_${file.name}`
+    const { error: uploadError } = await sb.storage.from('client-files').upload(path, file)
+    if (uploadError) throw uploadError
+
+    // 2. Enregistrer en base
+    const { data: subData, error: dbError } = await sb.from('submissions').insert({
+      user_id:   currentUser.id,
+      file_name: file.name,
+      file_path: path,
+      status:    'en_attente'
+    }).select()
+    if (dbError) throw dbError
+
+    updateQueueItem(itemEl, 'uploading', 'Analyse en cours...')
+
+    // 3. Déclencher l'API KORD
+    if (API_URL && API_URL !== 'https://kord-api-1.onrender.com' && subData && subData[0]) {
+      fetch(`${API_URL}/analyze`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          submission_id: subData[0].id,
+          file_path:     path,
+          file_name:     file.name,
+          user_id:       currentUser.id
+        })
+      }).catch(e => console.log('API non disponible:', e))
+    }
+
+    updateQueueItem(itemEl, 'done', 'Déposé avec succès')
+
+  } catch(e) {
+    console.error(e)
+    updateQueueItem(itemEl, 'error', 'Erreur — réessayez')
+  }
+}
+
+function addQueueItem(container, name, status, statusText) {
+  const div = document.createElement('div')
+  div.className = 'queue-item'
+  div.innerHTML = `
+    <span class="queue-name">${name}</span>
+    <span class="queue-status ${status}">${statusText}</span>`
+  container.appendChild(div)
+  return div
+}
+
+function updateQueueItem(el, status, text) {
+  const s = el.querySelector('.queue-status')
+  s.className = `queue-status ${status}`
+  s.textContent = text
+}
+
+// ══════════════════════════════════════
+//  DRAG & DROP
+// ══════════════════════════════════════
+function setupDragDrop(id, zone) {
+  const el = document.getElementById(id)
+  if (!el) return
+  el.addEventListener('dragover',  e => { e.preventDefault(); el.classList.add('drag-over') })
+  el.addEventListener('dragleave', () => el.classList.remove('drag-over'))
+  el.addEventListener('drop', e => {
+    e.preventDefault()
+    el.classList.remove('drag-over')
+    handleFiles(e.dataTransfer.files, zone)
+  })
+}
+
+// ══════════════════════════════════════
+//  LOGOUT
+// ══════════════════════════════════════
+async function logout() {
+  await sb.auth.signOut()
+  window.location.replace('login.html')
+}
+
+// ══════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast')
+  t.textContent = msg
+  t.className = isError ? 'toast error show' : 'toast show'
+  setTimeout(() => t.classList.remove('show'), 3500)
+}
+</script>
+</body>
+</html>
