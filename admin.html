@@ -309,21 +309,26 @@ function showPage(name) {
 }
 
 // ── Charger dépôts ──
-async function loadAll() {
-  const { data } = await sb.from('submissions')
-    .select('*, profiles(contact_name, company_name)')
+async function loadClients(){
+  const { data } = await sb
+    .from('profiles')
+    .select('*')
     .order('created_at', { ascending: false })
 
-  allDepots = data || []
-  updateStats(allDepots)
-  renderDepots(allDepots)
-}
-
-function updateStats(list) {
-  document.getElementById('s-total').textContent = list.length
-  document.getElementById('s-wait').textContent  = list.filter(s=>s.status==='en_attente').length
-  document.getElementById('s-wip').textContent   = list.filter(s=>s.status==='en_analyse').length
-  document.getElementById('s-done').textContent  = list.filter(s=>s.status==='terminé').length
+  const el = document.getElementById('clients-list')
+  if(!data||!data.length){
+    el.innerHTML='<div class="empty-row">Aucun client inscrit.</div>'
+    return
+  }
+  el.innerHTML = data.map(p => {
+    const date = new Date(p.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})
+    return `<div class="table-row" style="grid-template-columns:2fr 2fr 1fr 1fr">
+      <div class="td">${p.contact_name||'Non renseigné'}</div>
+      <div class="td td-muted">${p.id.substring(0,8)}...</div>
+      <div class="td">${p.company_name||'N/A'}</div>
+      <div class="td td-muted">${date}</div>
+    </div>`
+  }).join('')
 }
 
 function filterBy(status, btn) {
