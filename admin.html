@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KORD — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#000;--white:#fff;--off:#f4f3f0;--near:#0d0d0d;--g400:#6b6b6b;--g200:#ccc;--border:rgba(255,255,255,0.07);--border-w:rgba(0,0,0,0.08)}
+body{font-family:'Inter',sans-serif;font-weight:300;background:#f4f3f0;color:var(--black);min-height:100vh;display:flex}
+
+.sidebar{width:240px;flex-shrink:0;background:var(--black);border-right:0.5px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100}
+.sb-logo{padding:26px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sb-word{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;letter-spacing:-0.02em;color:var(--white)}
+.sb-tag{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--g400);border:0.5px solid rgba(255,255,255,0.12);padding:4px 9px}
+.sb-nav{flex:1;padding:18px 0}
+.sb-section{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,0.2);padding:22px 26px 10px}
+.sb-item{display:flex;align-items:center;gap:13px;padding:12px 26px;font-size:13px;font-weight:300;color:var(--g400);cursor:pointer;transition:color .15s,background .15s;border-left:2px solid transparent}
+.sb-item:hover{color:var(--white);background:rgba(255,255,255,0.03)}
+.sb-item.active{color:var(--white);border-left-color:var(--white);background:rgba(255,255,255,0.04)}
+.sb-item svg{flex-shrink:0;opacity:.5}
+.sb-item.active svg,.sb-item:hover svg{opacity:1}
+.sb-bottom{padding:18px 26px 26px;border-top:0.5px solid var(--border)}
+.sb-logout{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--g400);cursor:pointer;transition:color .15s}
+.sb-logout:hover{color:var(--white)}
+
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh;background:#f4f3f0}
+.topbar{padding:0 44px;height:62px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border);background:#fff;position:sticky;top:0;z-index:50;border-bottom:0.5px solid rgba(0,0,0,0.08)}
+.topbar-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--black)}
+.content{padding:44px;flex:1;background:#f4f3f0}
+.page{display:none}
+.page.active{display:block}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);border:0.5px solid rgba(0,0,0,0.1);margin-bottom:36px;background:#fff}
+.stat-box{padding:28px 32px;border-right:0.5px solid rgba(0,0,0,0.08)}
+.stat-box:last-child{border-right:none}
+.stat-lbl{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#6b6b6b;margin-bottom:12px}
+.stat-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:32px;letter-spacing:-.02em;color:var(--black);line-height:1}
+
+/* Cards */
+.card{background:#fff;border:0.5px solid rgba(0,0,0,0.1);margin-bottom:24px}
+.card-header{padding:20px 26px;border-bottom:0.5px solid rgba(0,0,0,0.08);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--black)}
+.filters{display:flex;border-bottom:0.5px solid rgba(0,0,0,0.08)}
+.filter-btn{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#6b6b6b;background:transparent;border:none;border-right:0.5px solid rgba(0,0,0,0.08);padding:13px 22px;cursor:pointer;transition:color .15s,background .15s}
+.filter-btn:hover{color:var(--black);background:rgba(0,0,0,0.03)}
+.filter-btn.active{color:var(--black);background:rgba(0,0,0,0.04)}
+
+/* Table dépôts */
+.t-head{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 1.4fr;padding:12px 26px;border-bottom:0.5px solid rgba(0,0,0,0.08);background:#f9f9f7}
+.th{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(0,0,0,0.35)}
+.t-row{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 1.4fr;padding:15px 26px;border-bottom:0.5px solid rgba(0,0,0,0.07);align-items:center;transition:background .15s}
+.t-row:last-child{border-bottom:none}
+.t-row:hover{background:rgba(0,0,0,0.02)}
+.td{font-size:13px;color:var(--black)}
+.td-sub{font-size:11px;color:var(--g400);margin-top:2px}
+.td-m{color:#6b6b6b}
+.badge{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:4px 11px;display:inline-block}
+.badge-wait{border:0.5px solid rgba(255,255,255,0.12);color:var(--g400)}
+.badge-wip{background:rgba(255,255,255,0.07);color:var(--g200)}
+.badge-done{background:rgba(255,255,255,0.12);color:var(--white)}
+.status-select{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:#fff;border:0.5px solid rgba(0,0,0,0.15);color:var(--black);padding:7px 11px;cursor:pointer;outline:none;-webkit-appearance:none;width:100%}
+.status-select option{background:#fff;color:#000}
+.action-btns{display:flex;gap:7px;flex-wrap:wrap}
+.btn-a{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:transparent;border:0.5px solid rgba(0,0,0,0.2);color:var(--black);padding:7px 12px;cursor:pointer;transition:border-color .15s;white-space:nowrap;text-decoration:none;display:inline-block}
+.btn-a:hover{border-color:var(--black)}
+
+/* Table clients */
+.c-head{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr;padding:12px 26px;border-bottom:0.5px solid var(--border)}
+.c-row{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr;padding:15px 26px;border-bottom:0.5px solid rgba(0,0,0,0.07);align-items:center;transition:background .15s;cursor:pointer}
+.c-row:last-child{border-bottom:none}
+.c-row:hover{background:rgba(0,0,0,0.03)}
+
+/* Modal rapport */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:500;align-items:flex-start;justify-content:center;padding-top:60px;overflow-y:auto}
+.modal-overlay.show{display:flex}
+.modal{background:var(--off);color:var(--black);width:100%;max-width:680px;margin-bottom:60px}
+.modal-header{background:var(--black);padding:24px 32px;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--white)}
+.modal-close{font-size:22px;color:var(--g400);cursor:pointer;background:none;border:none;line-height:1}
+.modal-close:hover{color:var(--white)}
+.modal-body{padding:32px}
+.modal-section{margin-bottom:28px}
+.modal-section-title{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--g400);margin-bottom:12px;border-bottom:0.5px solid var(--border-w);padding-bottom:10px}
+.modal-field{margin-bottom:18px}
+.modal-label{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--g400);margin-bottom:8px;display:block}
+.modal-input{width:100%;background:var(--white);border:0.5px solid rgba(0,0,0,0.15);color:var(--black);padding:13px 15px;font-family:'Inter',sans-serif;font-size:14px;font-weight:300;outline:none;transition:border-color .2s;border-radius:0}
+.modal-input:focus{border-color:var(--black)}
+.modal-input::placeholder{color:#bbb}
+textarea.modal-input{resize:vertical;min-height:80px}
+.modal-field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.modal-footer{padding:20px 32px;border-top:0.5px solid var(--border-w);display:flex;justify-content:flex-end;gap:12px;background:var(--white)}
+.btn-cancel-m{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--g400);background:transparent;border:0.5px solid rgba(0,0,0,0.15);padding:12px 24px;cursor:pointer}
+.btn-save-m{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--white);background:var(--black);border:none;padding:12px 24px;cursor:pointer}
+.btn-save-m:hover{opacity:.85}
+
+/* Rapport aperçu */
+.rapport-preview-box{background:var(--black);color:var(--white);padding:20px;margin-bottom:16px;border:0.5px solid rgba(255,255,255,0.1)}
+.rpb-client{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px}
+.rpb-meta{font-size:12px;color:var(--g400)}
+
+.toast{position:fixed;bottom:34px;right:34px;z-index:999;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;padding:16px 26px;transform:translateY(20px);opacity:0;transition:all .3s ease;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:var(--black);color:var(--white)}
+.toast.err{background:#e03e3e;color:var(--white)}
+.empty-row{padding:50px 26px;text-align:center;font-size:13px;color:#6b6b6b}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sb-logo"><span class="sb-word">KORD</span><span class="sb-tag">Admin</span></div>
+  <nav class="sb-nav">
+    <div class="sb-section">Administration</div>
+    <div class="sb-item active" data-page="depots">
+      <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="1" stroke="white" stroke-width="1.2"/><path d="M4 5h6M4 7.5h6M4 10h3" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Dépôts clients
+    </div>
+    <div class="sb-item" data-page="clients">
+      <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="3" stroke="white" stroke-width="1.2"/><path d="M1 13c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Clients
+    </div>
+    <div class="sb-item" data-page="rapports">
+      <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><polyline points="1,10 4,6 7,8 10,3 13,1" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Rapports envoyés
+    </div>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-logout" onclick="logout()">
+      <svg width="13" height="13" viewBox="0 0 12 12" fill="none"><path d="M8 2h2v8H8M5 8l3-2-3-2" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Déconnexion
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="page-title">Dépôts clients</span>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#6b6b6b" id="topbar-date"></div>
+  </div>
+
+  <div class="content">
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-lbl">Total dépôts</div><div class="stat-val" id="s-total">0</div></div>
+      
+      <div class="stat-box"><div class="stat-lbl">En analyse</div><div class="stat-val" id="s-wip">0</div></div>
+      <div class="stat-box"><div class="stat-lbl">Terminés</div><div class="stat-val" id="s-done">0</div></div>
+    </div>
+
+    <!-- DEPOTS -->
+    <div id="page-depots" class="page active">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Tous les dépôts</span><button class="btn-a" onclick="loadDepots()">↻ Actualiser</button></div>
+        <div class="filters">
+          <button class="filter-btn active" onclick="filterBy('all',this)">Tous</button>
+          
+          <button class="filter-btn" onclick="filterBy('en_analyse',this)">En analyse</button>
+          <button class="filter-btn" onclick="filterBy('terminé',this)">Terminés</button>
+        </div>
+        <div class="t-head"><div class="th">Fichier</div><div class="th">Client</div><div class="th">Date</div><div class="th">Trimestre</div><div class="th">Statut</div><div class="th">Actions</div></div>
+        <div id="depots-list"><div class="empty-row">Chargement...</div></div>
+      </div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div id="page-clients" class="page">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Clients inscrits</span></div>
+        <div class="c-head"><div class="th">Entreprise</div><div class="th">Contact</div><div class="th">Inscrit le</div><div class="th">Fichiers</div><div class="th">Actions</div></div>
+        <div id="clients-list"><div class="empty-row">Chargement...</div></div>
+      </div>
+    </div>
+
+    <!-- RAPPORTS -->
+    <div id="page-rapports" class="page">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Rapports envoyés</span></div>
+        <div id="rapports-list"><div class="empty-row">Chargement...</div></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL RAPPORT -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Envoyer le rapport KORD</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div id="modal-client-info" class="rapport-preview-box" style="display:none">
+        <div class="rpb-client" id="modal-client-name"></div>
+        <div class="rpb-meta" id="modal-client-meta"></div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Informations du rapport</div>
+        <div class="modal-field-row">
+          <div class="modal-field">
+            <label class="modal-label">Score KORD (sur 100)</label>
+            <input type="number" class="modal-input" id="m-score" placeholder="Ex : 47" min="0" max="100"/>
+          </div>
+          <div class="modal-field">
+            <label class="modal-label">Trimestre</label>
+            <select class="modal-input" id="m-trimestre">
+              <option value="T1 2026">T1 2026</option>
+              <option value="T2 2026">T2 2026</option>
+              <option value="T3 2026">T3 2026</option>
+              <option value="T4 2026">T4 2026</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Résumé exécutif</div>
+        <div class="modal-field">
+          <label class="modal-label">Synthèse (visible par le client)</label>
+          <textarea class="modal-input" id="m-summary" placeholder="Résumé des principales conclusions et enjeux financiers identifiés..." style="min-height:100px"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Rapport PDF</div>
+        <div class="modal-field">
+          <label class="modal-label">Lien de téléchargement</label>
+          <input type="text" class="modal-input" id="m-url" placeholder="https://drive.google.com/..."/>
+          <div style="font-size:11px;color:var(--g400);margin-top:7px">Uploadez le PDF KORD sur Google Drive, Dropbox ou tout autre service et collez le lien ici.</div>
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Lien annexes Excel (optionnel)</label>
+          <input type="text" class="modal-input" id="m-url-excel" placeholder="https://..."/>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-m" onclick="closeModal()">Annuler</button>
+      <button class="btn-save-m" onclick="saveReport()">Envoyer au client →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL  = 'https://dtnkqxbyvnsybddbyelv.supabase.co'
+const SUPABASE_ANON = 'sb_publishable_RqkmwDHNRAmxWvIwiBq39w_EGRyJT2f'
+const ADMIN_EMAIL   = 'matuvangua.mj@gmail.com'
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON)
+
+let allDepots=[], allProfiles=[]
+let currentSubId=null, currentUserId=null
+
+// Navigation
+document.querySelectorAll('.sb-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    const page=item.dataset.page
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'))
+    document.getElementById('page-'+page).classList.add('active')
+    document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'))
+    item.classList.add('active')
+    const titles={depots:'Dépôts clients',clients:'Clients inscrits',rapports:'Rapports envoyés'}
+    document.getElementById('page-title').textContent=titles[page]||''
+    if(page==='clients')loadClients()
+    if(page==='rapports')loadRapports()
+  })
+})
+
+window.onload = async () => {
+  const{data:{session}}=await sb.auth.getSession()
+  if(!session){window.location.href='login.html';return}
+  if(session.user.email!==ADMIN_EMAIL){window.location.href='dashboard.html';return}
+  document.getElementById('topbar-date').textContent=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
+  await loadDepots()
+}
+
+async function loadDepots(){
+  document.getElementById('depots-list').innerHTML='<div class="empty-row">Chargement...</div>'
+  const{data:subs}=await sb.from('submissions').select('*').order('created_at',{ascending:false})
+  const{data:profs}=await sb.from('profiles').select('*')
+  allProfiles=profs||[]
+  allDepots=(subs||[]).map(s=>({...s,profile:allProfiles.find(p=>p.id===s.user_id)||null}))
+  document.getElementById('s-total').textContent=allDepots.length
+  
+  document.getElementById('s-wip').textContent=allDepots.filter(s=>s.status==='en_analyse').length
+  document.getElementById('s-done').textContent=allDepots.filter(s=>s.status==='terminé').length
+  renderDepots(allDepots)
+}
+
+function filterBy(status,btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'))
+  btn.classList.add('active')
+  renderDepots(status==='all'?allDepots:allDepots.filter(s=>s.status===status))
+}
+
+function getTrimestre(dateStr){
+  const d=new Date(dateStr)
+  return`T${Math.ceil((d.getMonth()+1)/3)} ${d.getFullYear()}`
+}
+
+function renderDepots(list){
+  const el=document.getElementById('depots-list')
+  if(!list.length){el.innerHTML='<div class="empty-row">Aucun dépôt.</div>';return}
+  el.innerHTML=list.map(s=>{
+    const date=new Date(s.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})
+    const ext=s.file_name.split('.').pop().toUpperCase()
+    const client=s.profile?.contact_name||'Inconnu'
+    const company=s.profile?.company_name||''
+    const trim=getTrimestre(s.created_at)
+    const badge=s.status==='terminé'?'<span class="badge badge-done">Terminé</span>':'<span class="badge badge-wip">En analyse</span>'||'<span class="badge badge-wait">En attente</span>'
+    return`<div class="t-row">
+      <div class="td">${s.file_name}<div class="td-sub">${ext}</div></div>
+      <div class="td">${client}<div class="td-sub">${company}</div></div>
+      <div class="td td-m">${date}</div>
+      <div class="td td-m">${trim}</div>
+      <div class="td"><select class="status-select" onchange="updateStatus('${s.id}',this.value)"><option value="en_analyse" ${s.status==='en_analyse'?'selected':''}>En analyse</option><option value="terminé" ${s.status==='terminé'?'selected':''}>Terminé</option></select></div>
+      <div class="td"><div class="action-btns"><button class="btn-a" onclick="downloadFile('${s.file_path}','${s.file_name}')">↓ Fichier</button><button class="btn-a" onclick="openModal('${s.id}','${s.user_id}')">Rapport →</button></div></div>
+    </div>`
+  }).join('')
+}
+
+async function updateStatus(id,status){
+  await sb.from('submissions').update({status}).eq('id',id)
+  showToast('Statut mis à jour','ok')
+  await loadDepots()
+}
+
+async function downloadFile(path,name){
+  const signed=await sb.storage.from('client-files').createSignedUrl(path,300)
+  const url=signed.data?.signedUrl||signed.signedURL
+  if(!url){showToast('Erreur téléchargement','err');return}
+  const a=document.createElement('a');a.href=url;a.download=name;a.click()
+}
+
+function openModal(subId,userId){
+  currentSubId=subId;currentUserId=userId
+  const depot=allDepots.find(d=>d.id===subId)
+  const profile=depot?.profile
+  if(profile){
+    document.getElementById('modal-client-name').textContent=`${profile.company_name||''} — ${profile.contact_name||''}`
+    document.getElementById('modal-client-meta').textContent=`Fichier : ${depot.file_name} · ${getTrimestre(depot.created_at)}`
+    document.getElementById('modal-client-info').style.display='block'
+  }
+  // Pré-remplir le trimestre
+  if(depot)document.getElementById('m-trimestre').value=getTrimestre(depot.created_at)
+  document.getElementById('m-score').value=''
+  document.getElementById('m-summary').value=''
+  document.getElementById('m-url').value=''
+  document.getElementById('m-url-excel').value=''
+  document.getElementById('modal').classList.add('show')
+}
+
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+
+async function saveReport(){
+  const score=parseInt(document.getElementById('m-score').value)
+  const summary=document.getElementById('m-summary').value.trim()
+  const url=document.getElementById('m-url').value.trim()
+  const urlExcel=document.getElementById('m-url-excel').value.trim()
+  const trimestre=document.getElementById('m-trimestre').value
+  if(!score||!summary){showToast('Remplissez le score et le résumé','err');return}
+
+  await sb.from('reports').insert({
+    user_id:currentUserId,submission_id:currentSubId,
+    score_kord:score,summary,report_url:url||null,
+  }).execute ? null : null
+
+  await sb.from('reports').insert({
+    user_id:currentUserId,
+    submission_id:currentSubId,
+    score_kord:score,
+    summary,
+    report_url:url||null,
+  })
+
+  await sb.from('submissions').update({status:'terminé'}).eq('id',currentSubId)
+  closeModal()
+  showToast('Rapport envoyé au client','ok')
+  await loadDepots()
+}
+
+async function loadClients(){
+  const{data:profs}=await sb.from('profiles').select('*').order('created_at',{ascending:false})
+  const{data:subs}=await sb.from('submissions').select('user_id')
+  const el=document.getElementById('clients-list')
+  if(!profs||!profs.length){el.innerHTML='<div class="empty-row">Aucun client inscrit.</div>';return}
+  el.innerHTML=profs.map(p=>{
+    const date=new Date(p.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})
+    const nb=(subs||[]).filter(s=>s.user_id===p.id).length
+    return`<div class="c-row" onclick="filterByClient('${p.id}')">
+      <div class="td">${p.company_name||'Non renseigné'}</div>
+      <div class="td">${p.contact_name||'Non renseigné'}</div>
+      <div class="td td-m">${date}</div>
+      <div class="td td-m">${nb} fichier${nb>1?'s':''}</div>
+      <div class="td"><button class="btn-a" onclick="event.stopPropagation();filterByClient('${p.id}')">Voir dépôts</button></div>
+    </div>`
+  }).join('')
+}
+
+function filterByClient(userId){
+  document.querySelector('.sb-item[data-page="depots"]').click()
+  const filtered=allDepots.filter(s=>s.user_id===userId)
+  renderDepots(filtered)
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'))
+  document.querySelector('.filter-btn').classList.add('active')
+}
+
+async function loadRapports(){
+  const{data:rpts}=await sb.from('reports').select('*').order('created_at',{ascending:false})
+  const el=document.getElementById('rapports-list')
+  if(!rpts||!rpts.length){el.innerHTML='<div class="empty-row">Aucun rapport envoyé.</div>';return}
+  el.innerHTML=`<div class="t-head" style="grid-template-columns:2fr 1.5fr 1fr 1fr 1fr"><div class="th">Client</div><div class="th">Trimestre</div><div class="th">Score</div><div class="th">Rapport</div><div class="th">Date</div></div>`+
+  rpts.map(r=>{
+    const profile=allProfiles.find(p=>p.id===r.user_id)
+    const client=profile?.contact_name||'Inconnu'
+    const company=profile?.company_name||''
+    const date=new Date(r.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})
+    const trim=getTrimestre(r.created_at)
+    return`<div class="t-row" style="grid-template-columns:2fr 1.5fr 1fr 1fr 1fr">
+      <div class="td">${company}<div class="td-sub">${client}</div></div>
+      <div class="td td-m">${trim}</div>
+      <div class="td"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px">${r.score_kord}</span><span style="font-size:12px;color:#6b6b6b">/100</span></div>
+      <div class="td">${r.report_url?`<a class="btn-a" href="${r.report_url}" target="_blank">PDF</a>`:'<span style="font-size:11px;color:#6b6b6b">Sans lien</span>'}</div>
+      <div class="td td-m">${date}</div>
+    </div>`
+  }).join('')
+}
+
+async function logout(){await sb.auth.signOut();window.location.replace('login.html')}
+function showToast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast ${type} show`;setTimeout(()=>t.classList.remove('show'),3000)}
+</script>
+</body>
+</html>
