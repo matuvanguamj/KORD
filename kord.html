@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KORD — Performance Opérationnelle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#000;--white:#fff;--off:#f4f3f0;--near:#0d0d0d;--g400:#6b6b6b;--g100:#e8e8e8}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;font-weight:300;background:var(--black);color:var(--white);overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 52px;height:64px;background:rgba(0,0,0,0.93);backdrop-filter:blur(16px);border-bottom:0.5px solid rgba(255,255,255,0.07)}
+.logo-word{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.02em;color:var(--white);text-decoration:none}
+.nav-r{display:flex;align-items:center;gap:12px}
+.btn-login{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--white);background:transparent;border:0.5px solid rgba(255,255,255,0.35);padding:11px 26px;cursor:pointer;text-decoration:none;transition:background .2s,color .2s}
+.btn-login:hover{background:var(--white);color:var(--black)}
+.btn-signup{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--black);background:var(--white);border:none;padding:11px 26px;cursor:pointer;text-decoration:none}
+.btn-signup:hover{background:var(--g100)}
+
+/* HERO — noir */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 52px;position:relative;overflow:hidden;background:var(--black)}
+.hero-tag{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--g400);margin-bottom:30px;opacity:0;animation:fadeUp .8s .1s ease forwards}
+.hero-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(60px,8vw,114px);line-height:.90;letter-spacing:-.025em;text-transform:uppercase;color:var(--white);margin-bottom:30px;opacity:0;animation:fadeUp .8s .2s ease forwards}
+.hero-title em{font-style:normal;display:block;background:linear-gradient(90deg,rgba(255,255,255,0.95) 0%,rgba(255,255,255,0.35) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-family:'Inter',sans-serif;font-weight:300;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--g400);margin-bottom:52px;opacity:0;animation:fadeUp .8s .3s ease forwards}
+.hero-sub span{margin:0 14px;opacity:.3}
+.hero-ctas{display:flex;gap:14px;opacity:0;animation:fadeUp .8s .4s ease forwards}
+.cta-main{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--black);background:var(--white);border:none;padding:18px 44px;cursor:pointer;text-decoration:none}
+.cta-main:hover{background:var(--g100)}
+.cta-sec{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--white);background:transparent;border:0.5px solid rgba(255,255,255,0.25);padding:18px 44px;cursor:pointer;text-decoration:none;transition:border-color .2s}
+.cta-sec:hover{border-color:var(--white)}
+.hero-badge{position:absolute;top:50%;right:52px;transform:translateY(-50%);border:0.5px solid rgba(255,255,255,0.12);padding:26px 30px;opacity:0;animation:fadeLeft .9s .5s ease forwards}
+.hb-label{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--g400);margin-bottom:10px}
+.hb-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:34px;color:var(--white);line-height:1}
+.hb-sub{font-size:11px;font-weight:300;color:var(--g400);margin-top:6px}
+.geo{position:absolute;right:52px;bottom:80px;opacity:.07}
+
+/* STATS — blanc */
+.stats-section{background:var(--white);color:var(--black)}
+.stripe{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:0.5px solid rgba(0,0,0,0.08)}
+.st-cell{padding:52px 0 52px 60px;border-right:0.5px solid rgba(0,0,0,0.08)}
+.st-cell:last-child{border-right:none}
+.st-num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:52px;letter-spacing:-.025em;color:var(--black);line-height:1;margin-bottom:10px}
+.st-lbl{font-family:'Inter',sans-serif;font-weight:300;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--g400);line-height:1.6}
+
+/* PROBLÈME — blanc */
+.probleme-section{background:var(--white);color:var(--black);padding:96px 52px}
+.pb-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.pb-left{}
+.pb-eyebrow{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--g400);margin-bottom:16px}
+.pb-title-bar{display:flex;align-items:flex-start;gap:16px;margin-bottom:28px}
+.pb-bar{width:3px;height:34px;background:var(--black);flex-shrink:0;margin-top:4px}
+.pb-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:38px;letter-spacing:-.02em;text-transform:uppercase;line-height:.96;color:var(--black)}
+.pb-body{font-size:15px;color:var(--g400);line-height:1.8;margin-bottom:32px}
+.pb-quote{border-left:3px solid var(--black);padding-left:24px;margin-top:32px}
+.pb-quote-text{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:600;color:var(--black);line-height:1.45}
+.pb-quote-author{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--g400);margin-top:10px}
+.pb-right{display:flex;flex-direction:column;gap:0}
+.pb-item{padding:24px 0;border-bottom:0.5px solid rgba(0,0,0,0.08);display:flex;align-items:flex-start;gap:16px}
+.pb-item:first-child{border-top:0.5px solid rgba(0,0,0,0.08)}
+.pb-item-num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;letter-spacing:.1em;color:rgba(0,0,0,0.2);flex-shrink:0;min-width:24px;padding-top:2px}
+.pb-item-text{font-size:13.5px;color:var(--black);line-height:1.6}
+.pb-item-text strong{font-weight:600}
+
+/* COMMENT — noir */
+.how-section{background:var(--near);padding:96px 52px;border-top:0.5px solid rgba(255,255,255,0.06)}
+.how-eyebrow{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--g400);margin-bottom:16px;text-align:center}
+.how-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:38px;letter-spacing:-.02em;text-transform:uppercase;color:var(--white);text-align:center;margin-bottom:64px}
+.steps-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:0.5px solid rgba(255,255,255,0.08)}
+.step-col{padding:40px 30px 40px 0;border-right:0.5px solid rgba(255,255,255,0.08)}
+.step-col:first-child{padding-left:0}
+.step-col:last-child{border-right:none}
+.step-n{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;color:rgba(255,255,255,0.2);margin-bottom:18px}
+.step-icon-w{margin-bottom:14px}
+.step-name-w{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--white);margin-bottom:10px}
+.step-desc-w{font-size:13px;color:var(--g400);line-height:1.7}
+
+/* IA — blanc cassé */
+.ia-section{background:var(--off);color:var(--black);padding:96px 52px}
+.ia-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.ia-eyebrow{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--g400);margin-bottom:16px}
+.ia-title-bar{display:flex;align-items:flex-start;gap:16px;margin-bottom:24px}
+.ia-bar{width:3px;height:34px;background:var(--black);flex-shrink:0;margin-top:4px}
+.ia-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:36px;letter-spacing:-.02em;text-transform:uppercase;line-height:.96;color:var(--black)}
+.ia-body{font-size:14px;color:var(--g400);line-height:1.8;margin-bottom:32px}
+.ia-tags{display:flex;gap:8px;flex-wrap:wrap}
+.ia-tag{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;border:0.5px solid rgba(0,0,0,0.18);padding:8px 16px;color:var(--black)}
+.ia-cards{display:flex;flex-direction:column;gap:0}
+.ia-card{padding:28px 0;border-bottom:0.5px solid rgba(0,0,0,0.08);display:flex;align-items:flex-start;gap:20px}
+.ia-card:first-child{border-top:0.5px solid rgba(0,0,0,0.08)}
+.ia-card-num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;letter-spacing:.1em;color:rgba(0,0,0,0.2);flex-shrink:0;min-width:26px;padding-top:2px}
+.ia-card-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--black);margin-bottom:8px}
+.ia-card-desc{font-size:13px;color:var(--g400);line-height:1.7}
+
+/* CONFIANCE — noir */
+.confiance-section{background:var(--near);padding:96px 52px;border-top:0.5px solid rgba(255,255,255,0.06)}
+.conf-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:0;border-top:0.5px solid rgba(255,255,255,0.08)}
+.conf-cell{padding:48px 40px 48px 0;border-right:0.5px solid rgba(255,255,255,0.07)}
+.conf-cell:last-child{border-right:none}
+.conf-cell:not(:first-child){padding-left:40px}
+.conf-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--white);margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.conf-body{font-size:13px;color:var(--g400);line-height:1.7}
+
+/* CTA — blanc */
+.cta-section{background:var(--white);color:var(--black);padding:100px 52px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.cta-eyebrow{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--g400);margin-bottom:22px}
+.cta-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(36px,4.5vw,60px);letter-spacing:-.02em;text-transform:uppercase;color:var(--black);margin-bottom:44px;line-height:.95}
+.cta-btns{display:flex;gap:14px}
+.cta-black{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--white);background:var(--black);border:none;padding:18px 48px;cursor:pointer;text-decoration:none}
+.cta-black:hover{opacity:.82}
+.cta-border{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--black);background:transparent;border:0.5px solid rgba(0,0,0,0.2);padding:18px 48px;cursor:pointer;text-decoration:none;transition:border-color .2s}
+.cta-border:hover{border-color:var(--black)}
+
+/* FOOTER — noir */
+footer{background:var(--black);border-top:0.5px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:24px 52px}
+.foot-word{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;letter-spacing:-0.02em;color:var(--white);text-decoration:none}
+.foot-tag{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--g400)}
+.foot-tag b{color:rgba(255,255,255,0.15);font-weight:400;margin:0 10px}
+.foot-copy{font-size:11px;font-weight:300;color:rgba(255,255,255,0.15)}
+
+/* CHATBOT */
+.chat-bubble{position:fixed;bottom:32px;right:32px;z-index:300}
+.chat-btn{width:56px;height:56px;background:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(0,0,0,0.4);transition:transform .2s}
+.chat-btn:hover{transform:scale(1.05)}
+.chat-window{display:none;position:absolute;bottom:68px;right:0;width:340px;background:var(--black);border:0.5px solid rgba(255,255,255,0.12);flex-direction:column;max-height:480px}
+.chat-window.open{display:flex}
+.chat-header{padding:18px 22px;border-bottom:0.5px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between}
+.chat-header-info{}
+.chat-header-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--white)}
+.chat-header-sub{font-size:11px;color:var(--g400);margin-top:2px}
+.chat-close{background:none;border:none;color:var(--g400);cursor:pointer;font-size:20px;line-height:1}
+.chat-close:hover{color:var(--white)}
+.chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;min-height:260px}
+.chat-msg{max-width:88%;padding:11px 15px;font-size:13px;line-height:1.55}
+.chat-msg.kord{background:rgba(255,255,255,0.07);color:var(--white);align-self:flex-start;border-left:2px solid rgba(255,255,255,0.2)}
+.chat-msg.user{background:var(--white);color:var(--black);align-self:flex-end}
+.chat-typing{display:flex;gap:4px;align-items:center;padding:12px 15px;background:rgba(255,255,255,0.07);align-self:flex-start}
+.chat-typing span{width:6px;height:6px;background:var(--g400);border-radius:50%;animation:bounce .9s infinite}
+.chat-typing span:nth-child(2){animation-delay:.2s}
+.chat-typing span:nth-child(3){animation-delay:.4s}
+.chat-input-row{display:flex;border-top:0.5px solid rgba(255,255,255,0.08)}
+.chat-input{flex:1;background:transparent;border:none;padding:14px 18px;color:var(--white);font-family:'Inter',sans-serif;font-size:13px;font-weight:300;outline:none}
+.chat-input::placeholder{color:rgba(255,255,255,0.2)}
+.chat-send{background:var(--white);border:none;padding:14px 20px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--black);flex-shrink:0}
+.chat-send:hover{background:var(--g100)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeLeft{from{opacity:0;transform:translateX(22px)}to{opacity:1;transform:translateX(0)}}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.r1{transition-delay:.1s}.r2{transition-delay:.2s}.r3{transition-delay:.3s}
+</style>
+<script src="kord-loader.js"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo-word">KORD</a>
+  <div class="nav-r">
+    <a href="login.html"    class="btn-login">Se connecter</a>
+    <a href="register.html" class="btn-signup">Créer mon espace</a>
+  </div>
+</nav>
+
+<!-- HERO — NOIR -->
+<section class="hero">
+  <div class="hero-badge">
+    <div class="hb-label">Score KORD moyen</div>
+    <div class="hb-val" id="badge-score">0/100</div>
+    <div class="hb-sub">potentiel d'optimisation</div>
+  </div>
+  <svg class="geo" width="70" height="160" viewBox="0 0 70 160" fill="none">
+    <rect x="33" y="0" width="2" height="44" fill="white"/>
+    <line x1="4" y1="66" x2="54" y2="94" stroke="white" stroke-width="1.8" stroke-linecap="square"/>
+    <line x1="4" y1="122" x2="54" y2="94" stroke="white" stroke-width="1.8" stroke-linecap="square"/>
+    <rect x="24" y="138" width="2" height="22" fill="white"/>
+  </svg>
+  <div class="hero-tag">Plateforme d'audit opérationnel et supply chain</div>
+  <h1 class="hero-title">Performance<br><em>Opérationnelle</em></h1>
+  <p class="hero-sub">Stratégie <span>|</span> Logistique <span>|</span> Intelligence</p>
+  <div class="hero-ctas">
+    <a href="register.html" class="cta-main">Créer mon espace</a>
+    <a href="login.html"    class="cta-sec">Se connecter →</a>
+  </div>
+</section>
+
+<!-- STATS — BLANC -->
+<div class="stats-section">
+  <div class="stripe">
+    <div class="st-cell">
+      <div class="st-num"><span class="count" data-target="18" data-prefix="+" data-suffix="%">+0%</span></div>
+      <div class="st-lbl">Marge récupérée<br>en moyenne</div>
+    </div>
+    <div class="st-cell">
+      <div class="st-num"><span class="count" data-target="100" data-suffix="%">0%</span></div>
+      <div class="st-lbl">Confidentialité<br>garantie</div>
+    </div>
+    <div class="st-cell">
+      <div class="st-num">5</div>
+      <div class="st-lbl">Piliers<br>analysés par rapport</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLÈME — BLANC -->
+<section class="probleme-section">
+  <div class="pb-grid">
+    <div class="pb-left reveal">
+      <div class="pb-eyebrow">Le constat</div>
+      <div class="pb-title-bar">
+        <div class="pb-bar"></div>
+        <h2 class="pb-title">Vos données<br>cachent de l'argent</h2>
+      </div>
+      <p class="pb-body">
+        La plupart des entreprises utilisent un ERP pour enregistrer leurs opérations.
+        Mais enregistrer n'est pas analyser. Les failles financières, les stocks dormants,
+        les surfacturations transport, les marges négatives — tout ça existe dans vos données.
+        Personne ne les a encore lues correctement.
+      </p>
+      <div class="pb-quote">
+        <div class="pb-quote-text">"L'ERP enregistre. KORD révèle."</div>
+        <div class="pb-quote-author">Positionnement KORD</div>
+      </div>
+    </div>
+    <div class="pb-right reveal r1">
+      <div class="pb-item"><span class="pb-item-num">01</span><span class="pb-item-text"><strong>Cash immobilisé dans le stock</strong> — des milliers d'euros figés dans des références qui ne bougent plus</span></div>
+      <div class="pb-item"><span class="pb-item-num">02</span><span class="pb-item-text"><strong>Surfacturations transport</strong> — des écarts de poids et des anomalies que personne ne contrôle</span></div>
+      <div class="pb-item"><span class="pb-item-num">03</span><span class="pb-item-text"><strong>Fournisseurs en retard</strong> — des dépendances critiques qui fragilisent toute votre chaîne</span></div>
+      <div class="pb-item"><span class="pb-item-num">04</span><span class="pb-item-text"><strong>Marges incohérentes</strong> — des références vendues à perte sans que personne ne s'en aperçoive</span></div>
+      <div class="pb-item"><span class="pb-item-num">05</span><span class="pb-item-text"><strong>Données ERP sous-exploitées</strong> — des années d'historique qui ne servent à rien faute d'analyse</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMENT ÇA MARCHE — NOIR -->
+<section class="how-section">
+  <div class="how-eyebrow reveal">Comment ça fonctionne</div>
+  <h2 class="how-title reveal">Quatre étapes. Un rapport.</h2>
+  <div class="steps-row">
+    <div class="step-col reveal">
+      <div class="step-n">01</div>
+      <div class="step-icon-w"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="8" r="4" stroke="white" stroke-width="1.4"/><path d="M3 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="white" stroke-width="1.4" stroke-linecap="square"/></svg></div>
+      <div class="step-name-w">Inscription</div>
+      <div class="step-desc-w">Créez votre espace sécurisé en quelques secondes. Aucune intégration ERP requise.</div>
+    </div>
+    <div class="step-col reveal r1">
+      <div class="step-n">02</div>
+      <div class="step-icon-w"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="3" width="16" height="16" rx="1" stroke="white" stroke-width="1.4"/><path d="M11 7v8M7 11h8" stroke="white" stroke-width="1.4" stroke-linecap="square"/></svg></div>
+      <div class="step-name-w">Dépôt des données</div>
+      <div class="step-desc-w">Déposez vos exports CSV ou Excel. Stock, commandes, expéditions, marges — plus vous en donnez, plus l'analyse est précise.</div>
+    </div>
+    <div class="step-col reveal r2">
+      <div class="step-n">03</div>
+      <div class="step-icon-w"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><polyline points="2,16 8,9 13,12 19,4" stroke="white" stroke-width="1.4" stroke-linecap="square"/></svg></div>
+      <div class="step-name-w">Analyse KORD</div>
+      <div class="step-desc-w">Nos experts supply chain et data analysts, assistés par nos algorithmes, analysent l'ensemble de vos flux.</div>
+    </div>
+    <div class="step-col reveal r3">
+      <div class="step-n">04</div>
+      <div class="step-icon-w"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="3" width="16" height="16" rx="1" stroke="white" stroke-width="1.4"/><path d="M7 8h8M7 11h8M7 14h4" stroke="white" stroke-width="1.4" stroke-linecap="square"/></svg></div>
+      <div class="step-name-w">Restitution</div>
+      <div class="step-desc-w">Rapport PDF structuré avec Score KORD, graphiques, recommandations priorisées et annexes chiffrées.</div>
+    </div>
+  </div>
+</section>
+
+<!-- IA — BLANC CASSÉ -->
+<section class="ia-section">
+  <div class="ia-grid">
+    <div class="reveal">
+      <div class="ia-eyebrow">Au cœur de KORD</div>
+      <div class="ia-title-bar">
+        <div class="ia-bar"></div>
+        <h2 class="ia-title">Ce que vos outils<br>ne voient pas,<br>KORD le trouve.</h2>
+      </div>
+      <p class="ia-body">
+        Derrière chaque rapport KORD, une combinaison rare : des experts supply chain,
+        des data analysts et une intelligence artificielle entraînée sur les problématiques
+        opérationnelles et financières des entreprises. Pas de bruit. Que des conclusions actionnables.
+      </p>
+      <div class="ia-tags">
+        <span class="ia-tag">Supply chain</span>
+        <span class="ia-tag">Data analysis</span>
+        <span class="ia-tag">Finance opérationnelle</span>
+        <span class="ia-tag">IA propriétaire</span>
+      </div>
+    </div>
+    <div class="reveal r1">
+      <div class="ia-cards">
+        <div class="ia-card">
+          <div class="ia-card-num">01</div>
+          <div>
+            <div class="ia-card-title">Détection automatique</div>
+            <div class="ia-card-desc">Nos algorithmes parcourent l'intégralité de vos données et font remonter ce que les rapports standards laissent dans l'ombre.</div>
+          </div>
+        </div>
+        <div class="ia-card">
+          <div class="ia-card-num">02</div>
+          <div>
+            <div class="ia-card-title">Analyse croisée</div>
+            <div class="ia-card-desc">Stock, transport, achats, marges — nos modèles analysent les corrélations entre vos flux pour identifier les failles systémiques.</div>
+          </div>
+        </div>
+        <div class="ia-card">
+          <div class="ia-card-num">03</div>
+          <div>
+            <div class="ia-card-title">Recommandations chiffrées</div>
+            <div class="ia-card-desc">Chaque recommandation est accompagnée d'un impact financier estimé. Vous savez exactement ce que vous avez à gagner.</div>
+          </div>
+        </div>
+        <div class="ia-card">
+          <div class="ia-card-num">04</div>
+          <div>
+            <div class="ia-card-title">Validation humaine</div>
+            <div class="ia-card-desc">Chaque analyse est relue et validée par nos experts avant restitution. La technologie détecte. L'expertise contextualise.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONFIANCE — NOIR -->
+<section class="confiance-section">
+  <div class="conf-grid">
+    <div class="conf-cell reveal">
+      <div class="conf-title">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 1L2 4v6c0 4 2.8 7.4 7 8.8 4.2-1.4 7-4.8 7-8.8V4L9 1z" stroke="white" stroke-width="1.3"/><path d="M5.5 9l3 3 4-4" stroke="white" stroke-width="1.3" stroke-linecap="square"/></svg>
+        Confidentialité totale
+      </div>
+      <p class="conf-body">Vos données sont traitées avec la plus haute exigence de sécurité. Accord de confidentialité systématique. Aucune donnée partagée. Aucune réutilisation.</p>
+    </div>
+    <div class="conf-cell reveal r1">
+      <div class="conf-title">Hébergement Suisse</div>
+      <p class="conf-body">Infrastructure hébergée en Europe. Chiffrement bout en bout. Conformité RGPD totale.</p>
+    </div>
+    <div class="conf-cell reveal r2">
+      <div class="conf-title">Experts dédiés</div>
+      <p class="conf-body">Chaque client est suivi par un analyste dédié qui connaît son secteur et ses enjeux spécifiques.</p>
+    </div>
+    <div class="conf-cell reveal r3">
+      <div class="conf-title">Rapport trimestriel</div>
+      <p class="conf-body">Un rapport complet tous les trimestres. Suivi dans le temps. Vision de l'évolution de vos performances.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA — BLANC -->
+<section class="cta-section">
+  <div class="cta-eyebrow reveal">Prêt à révéler votre potentiel ?</div>
+  <h2 class="cta-title reveal">Créez votre espace<br>KORD dès aujourd'hui</h2>
+  <div class="cta-btns reveal">
+    <a href="register.html" class="cta-black">Démarrer maintenant</a>
+    <a href="login.html"    class="cta-border">J'ai déjà un compte</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="foot-word">KORD</a>
+  <div class="foot-tag">Performance <b>|</b> Structure <b>|</b> Profit</div>
+  <div class="foot-copy">© KORD 2026 Tous droits réservés</div>
+</footer>
+
+<!-- CHATBOT COMMERCIAL -->
+<div class="chat-bubble">
+  <div class="chat-window" id="chat-window">
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <div class="chat-header-title">Assistant KORD</div>
+        <div class="chat-header-sub">Questions sur la plateforme</div>
+      </div>
+      <button class="chat-close" onclick="toggleChat()">×</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-msg kord">Bonjour. Je suis l'assistant virtuel KORD. Je peux vous guider sur la plateforme et répondre à vos questions.</div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" placeholder="Posez votre question..." onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button class="chat-send" onclick="sendChat()">→</button>
+    </div>
+  </div>
+  <button class="chat-btn" onclick="toggleChat()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M3 4h18v14H3z" stroke="black" stroke-width="1.6" stroke-linecap="square"/>
+      <path d="M7 18l-4 3V18" stroke="black" stroke-width="1.6" stroke-linecap="square"/>
+      <path d="M8 10h8M8 13h5" stroke="black" stroke-width="1.6" stroke-linecap="square"/>
+    </svg>
+  </button>
+</div>
+
+<script>
+/* Compteurs */
+function animateCount(el){const t=parseInt(el.dataset.target),p=el.dataset.prefix||'',s=el.dataset.suffix||'';const steps=100;let c=0;const inc=t/steps;const timer=setInterval(()=>{c+=inc;if(c>=t){c=t;clearInterval(timer)}el.textContent=p+Math.round(c)+s;},16);}
+function animateBadge(){const el=document.getElementById('badge-score');let c=0;const t=setInterval(()=>{c++;el.textContent=c+'/100';if(c>=47)clearInterval(t);},30);}
+
+/* Scroll reveal */
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');obs.unobserve(x.target)}});},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+/* Stats */
+const stripe=document.querySelector('.stripe');
+new IntersectionObserver(e=>{if(e[0].isIntersecting)stripe.querySelectorAll('.count').forEach(animateCount);},{threshold:0.3}).observe(stripe);
+setTimeout(animateBadge,600);
+
+/* Chatbot */
+function toggleChat(){
+  const w=document.getElementById('chat-window');
+  w.classList.toggle('open');
+  if(w.classList.contains('open'))document.getElementById('chat-input').focus();
+}
+
+async function sendChat(){
+  const input=document.getElementById('chat-input');
+  const msg=input.value.trim();
+  if(!msg)return;
+  input.value='';
+
+  addMsg(msg,'user');
+
+  // Typing indicator
+  const typing=document.createElement('div');
+  typing.className='chat-typing';
+  typing.innerHTML='<span></span><span></span><span></span>';
+  typing.id='typing';
+  document.getElementById('chat-messages').appendChild(typing);
+  scrollChat();
+
+  try{
+    // Remplace KORD_API_URL par ton URL Render
+    const KORD_API='COLLE_TON_URL_RENDER_ICI'
+    const resp=await fetch(`${KORD_API}/chat`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:msg,history:[],context:'commercial'})
+    });
+    const data=await resp.json();
+    document.getElementById('typing')?.remove();
+    const answer=data.response||'Une question pour notre équipe ? Créez votre espace et nous vous recontactons rapidement.';
+    addMsg(answer,'kord');
+  }catch(e){
+    document.getElementById('typing')?.remove();
+    addMsg('Créez votre espace et notre équipe vous recontacte pour répondre à toutes vos questions.','kord');
+  }
+}
+
+function addMsg(text,type){
+  const div=document.createElement('div');
+  div.className=`chat-msg ${type}`;
+  div.textContent=text;
+  document.getElementById('chat-messages').appendChild(div);
+  scrollChat();
+}
+
+function scrollChat(){
+  const m=document.getElementById('chat-messages');
+  m.scrollTop=m.scrollHeight;
+}
+</script>
+</body>
+</html>

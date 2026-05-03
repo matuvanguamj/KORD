@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>KORD — Espace client</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#000;--white:#fff;--off:#f4f3f0;--near:#0d0d0d;--g400:#6b6b6b;--g200:#ccc;--border:rgba(255,255,255,0.07);--border-w:rgba(0,0,0,0.08)}
+body{font-family:'Inter',sans-serif;font-weight:300;background:var(--near);color:var(--white);min-height:100vh;display:flex}
+
+/* SIDEBAR */
+.sidebar{width:240px;flex-shrink:0;background:var(--black);border-right:0.5px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100}
+.sb-logo{padding:26px 26px 22px;border-bottom:0.5px solid var(--border)}
+.sb-word{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;letter-spacing:-0.02em;color:var(--white);text-decoration:none;display:block}
+.sb-nav{flex:1;padding:18px 0}
+.sb-section{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,0.2);padding:22px 26px 10px}
+.sb-item{display:flex;align-items:center;gap:13px;padding:12px 26px;font-size:13px;font-weight:300;color:var(--g400);cursor:pointer;transition:color .15s,background .15s;border-left:2px solid transparent;user-select:none}
+.sb-item:hover{color:var(--white);background:rgba(255,255,255,0.03)}
+.sb-item.active{color:var(--white);border-left-color:var(--white);background:rgba(255,255,255,0.04)}
+.sb-item svg{flex-shrink:0;opacity:.5}
+.sb-item.active svg,.sb-item:hover svg{opacity:1}
+.sb-bottom{padding:18px 26px 26px;border-top:0.5px solid var(--border)}
+.sb-user-name{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:500;color:var(--white);margin-bottom:3px}
+.sb-user-company{font-size:12px;color:var(--g400);margin-bottom:16px}
+.sb-logout{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--g400);cursor:pointer;transition:color .15s}
+.sb-logout:hover{color:var(--white)}
+
+/* MAIN */
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{padding:0 44px;height:62px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border);background:var(--near);position:sticky;top:0;z-index:50}
+.topbar-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+.topbar-badges{display:flex;gap:8px}
+.topbar-badge{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;border:0.5px solid var(--border);padding:7px 16px;color:var(--g400)}
+.page{display:none}
+.page.active{display:block}
+
+/* ═══ TABLEAU DE BORD ═══ */
+.dashboard-layout{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 62px)}
+.dash-dark{background:var(--near);padding:44px;border-right:0.5px solid var(--border)}
+.dash-light{background:var(--off);padding:44px;color:var(--black)}
+
+.section-label-dark{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--g400);margin-bottom:16px}
+.section-label-light{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--g400);margin-bottom:16px}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;border:0.5px solid var(--border);margin-bottom:32px}
+.stat-cell{padding:24px 26px;border-right:0.5px solid var(--border)}
+.stat-cell:last-child{border-right:none}
+.stat-cell-label{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--g400);margin-bottom:8px}
+.stat-cell-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:28px;letter-spacing:-.02em;color:var(--white);line-height:1}
+.stat-cell-sub{font-size:11px;color:var(--g400);margin-top:4px}
+
+/* Dossier card */
+.dossier-card{background:var(--black);border:0.5px solid var(--border);padding:24px;margin-bottom:20px}
+.dossier-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.dossier-card-title{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--white)}
+.badge-status{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:4px 11px}
+.bs-attente{border:0.5px solid rgba(255,255,255,0.12);color:var(--g400)}
+.bs-analyse{background:rgba(255,255,255,0.08);color:var(--g200)}
+.bs-done{background:rgba(255,255,255,0.14);color:var(--white)}
+.dossier-files-list{display:flex;flex-direction:column;gap:6px}
+.dossier-file-item{font-size:12px;color:var(--g400);display:flex;align-items:center;gap:8px}
+.no-dossier-msg{font-size:13px;color:var(--g400);line-height:1.7;padding:8px 0}
+.btn-white{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--black);background:var(--white);border:none;padding:12px 26px;cursor:pointer;text-decoration:none;display:inline-block;margin-top:14px}
+.btn-white:hover{opacity:.85}
+.btn-ghost{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--white);background:transparent;border:0.5px solid rgba(255,255,255,0.2);padding:12px 26px;cursor:pointer;text-decoration:none;display:inline-block;transition:border-color .2s}
+.btn-ghost:hover{border-color:var(--white)}
+
+/* Score section côté blanc */
+.score-wrap{text-align:center;padding:36px 0;border-bottom:0.5px solid var(--border-w);margin-bottom:28px}
+.score-ring{width:110px;height:110px;border-radius:50%;border:2px solid rgba(0,0,0,0.1);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 16px}
+.score-big{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:34px;color:var(--black);line-height:1}
+.score-small{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--g400);margin-top:2px}
+.score-heading{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;text-transform:uppercase;color:var(--black);margin-bottom:6px}
+.score-text{font-size:12px;color:var(--g400);max-width:220px;margin:0 auto;line-height:1.6}
+
+/* Info block côté blanc */
+.info-block{margin-bottom:24px;padding-bottom:24px;border-bottom:0.5px solid var(--border-w)}
+.info-block:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.info-block-label{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--g400);margin-bottom:8px}
+.info-block-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;color:var(--black)}
+.info-block-sub{font-size:12px;color:var(--g400);margin-top:3px}
+.rapport-preview{background:var(--white);border:0.5px solid var(--border-w);padding:18px}
+.rp-title{font-size:13px;font-weight:400;color:var(--black);margin-bottom:3px}
+.rp-meta{font-size:11px;color:var(--g400);margin-bottom:12px}
+.btn-dl-black{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--white);background:var(--black);border:none;padding:10px 20px;cursor:pointer;text-decoration:none;display:inline-block}
+
+/* ═══ DÉPOSER FICHIERS ═══ */
+.depot-page{background:var(--near)}
+.depot-header-section{background:var(--black);border-bottom:0.5px solid var(--border);padding:40px 44px}
+.depot-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;text-transform:uppercase;color:var(--white);margin-bottom:8px}
+.depot-sub{font-size:14px;color:var(--g400);line-height:1.7;max-width:600px}
+.depot-body{padding:44px}
+
+/* Grille types fichiers — alternée */
+.fichiers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin-bottom:44px}
+.ft-card{background:var(--near);padding:24px}
+.ft-card:nth-child(odd){background:var(--black)}
+.ft-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ft-name{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--white)}
+.ft-badge{font-family:'Space Grotesk',sans-serif;font-size:8px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px}
+.ft-essential{background:rgba(255,255,255,0.12);color:var(--white)}
+.ft-recommended{border:0.5px solid rgba(255,255,255,0.12);color:var(--g400)}
+.ft-optional{border:0.5px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.25)}
+.ft-desc{font-size:12px;color:var(--g400);line-height:1.6}
+
+/* Upload */
+.upload-card{background:var(--black);border:0.5px solid var(--border);padding:32px;margin-bottom:20px}
+.upload-card-title{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--white);margin-bottom:22px}
+.upload-zone{border:0.5px dashed rgba(255,255,255,0.14);padding:48px 32px;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:transparent}
+.upload-zone:hover,.upload-zone.drag-over{border-color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.02)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{opacity:.25;margin-bottom:16px}
+.upload-main-text{font-size:14px;color:var(--g400);margin-bottom:6px}
+.upload-hint-text{font-size:11px;color:rgba(255,255,255,0.18);margin-bottom:18px}
+.upload-browse-btn{display:inline-block;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--white);border:0.5px solid rgba(255,255,255,0.2);padding:10px 22px;pointer-events:none}
+
+/* Liste fichiers sélectionnés */
+.selected-list{display:flex;flex-direction:column;gap:8px;margin-top:20px}
+.sel-file{display:flex;align-items:center;gap:12px;padding:13px 16px;background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.07)}
+.sel-file-icon{flex-shrink:0;opacity:.35}
+.sel-file-info{flex:1}
+.sel-file-name{font-size:13px;color:var(--white)}
+.sel-file-size{font-size:11px;color:var(--g400);margin-top:2px}
+.sel-file-remove{background:none;border:none;color:var(--g400);cursor:pointer;font-size:18px;padding:0 8px;transition:color .15s;line-height:1}
+.sel-file-remove:hover{color:var(--white)}
+
+/* Barre confirmation — blanche */
+.confirm-bar{background:var(--off);border:0.5px solid rgba(0,0,0,0.1);padding:22px 28px;display:flex;align-items:center;justify-content:space-between;margin-top:20px;display:none}
+.confirm-bar.show{display:flex}
+.confirm-info{font-size:13px;color:var(--black)}
+.confirm-info strong{font-weight:600;font-family:'Space Grotesk',sans-serif}
+.btn-confirm{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--white);background:var(--black);border:none;padding:15px 36px;cursor:pointer;transition:opacity .2s}
+.btn-confirm:hover{opacity:.82}
+.btn-confirm:disabled{opacity:.4;cursor:not-allowed}
+.btn-cancel-sel{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--g400);background:transparent;border:none;cursor:pointer;padding:0 16px}
+.btn-cancel-sel:hover{color:var(--black)}
+
+/* Succès upload */
+.upload-success{background:var(--off);border:0.5px solid rgba(0,0,0,0.1);padding:28px;text-align:center;display:none}
+.upload-success.show{display:block}
+.us-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;text-transform:uppercase;color:var(--black);margin-bottom:8px}
+.us-sub{font-size:13px;color:var(--g400);line-height:1.7}
+
+/* ═══ MON DOSSIER ═══ */
+.dossier-page{background:var(--near)}
+.dossier-page-header{background:var(--off);border-bottom:0.5px solid rgba(0,0,0,0.08);padding:40px 44px;color:var(--black)}
+.dossier-page-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;text-transform:uppercase;color:var(--black);margin-bottom:8px}
+.dossier-page-sub{font-size:14px;color:var(--g400);line-height:1.7;max-width:560px}
+.dossier-content{padding:44px}
+.trim-row{display:flex;gap:0;border:0.5px solid var(--border);margin-bottom:32px;overflow:hidden;width:fit-content}
+.trim-btn{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--g400);background:transparent;border:none;border-right:0.5px solid var(--border);padding:11px 20px;cursor:pointer;transition:color .15s,background .15s}
+.trim-btn:last-child{border-right:none}
+.trim-btn.active{color:var(--white);background:rgba(255,255,255,0.06)}
+.trim-btn:hover{color:var(--white)}
+.files-table{background:var(--black);border:0.5px solid var(--border)}
+.ft-head{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:12px 24px;border-bottom:0.5px solid var(--border)}
+.fth{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,0.2)}
+.ft-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:15px 24px;border-bottom:0.5px solid var(--border);align-items:center}
+.ft-row:last-child{border-bottom:none}
+.ft-row:hover{background:rgba(255,255,255,0.02)}
+.ftd{font-size:13px;color:var(--white)}
+.ftd-sub{font-size:11px;color:var(--g400);margin-top:2px}
+.ftd-muted{color:var(--g400)}
+.badge{font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:4px 11px;display:inline-block}
+.badge-wait{border:0.5px solid rgba(255,255,255,0.1);color:var(--g400)}
+.badge-wip{background:rgba(255,255,255,0.06);color:var(--g200)}
+.badge-done{background:rgba(255,255,255,0.12);color:var(--white)}
+.empty-row{padding:48px 24px;text-align:center;font-size:13px;color:var(--g400)}
+
+/* ═══ MES RAPPORTS ═══ */
+.rapports-page-header{background:var(--black);border-bottom:0.5px solid var(--border);padding:40px 44px}
+.rapports-page-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;text-transform:uppercase;color:var(--white);margin-bottom:8px}
+.rapports-page-sub{font-size:14px;color:var(--g400);line-height:1.7}
+.rapports-content{padding:44px;background:var(--off)}
+.rapport-card{background:var(--white);border:0.5px solid rgba(0,0,0,0.08);margin-bottom:16px;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:32px;padding:28px 32px}
+.rc-info{}
+.rc-company{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:var(--black);margin-bottom:4px}
+.rc-meta{font-size:12px;color:var(--g400)}
+.rc-score{text-align:center;flex-shrink:0}
+.rc-score-num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:38px;color:var(--black);line-height:1}
+.rc-score-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--g400)}
+.rc-actions{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.btn-dl-dark{font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--white);background:var(--black);border:none;padding:12px 22px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn-dl-dark:hover{opacity:.82}
+.no-rapport{text-align:center;padding:80px 44px;color:var(--black)}
+.no-rapport-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;text-transform:uppercase;margin-bottom:12px}
+.no-rapport-sub{font-size:14px;color:var(--g400);line-height:1.7;max-width:400px;margin:0 auto}
+
+/* Chatbot */
+.chat-bubble{position:fixed;bottom:32px;right:32px;z-index:300}
+.chat-btn{width:54px;height:54px;background:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,0.4);transition:transform .2s}
+.chat-btn:hover{transform:scale(1.05)}
+.chat-window{display:none;position:absolute;bottom:66px;right:0;width:340px;background:var(--black);border:0.5px solid rgba(255,255,255,0.12);flex-direction:column;max-height:480px}
+.chat-window.open{display:flex}
+.chat-header{padding:18px 22px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.chat-header-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--white)}
+.chat-header-sub{font-size:11px;color:var(--g400);margin-top:2px}
+.chat-close{background:none;border:none;color:var(--g400);cursor:pointer;font-size:20px;line-height:1}
+.chat-close:hover{color:var(--white)}
+.chat-messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px;min-height:260px}
+.chat-msg{max-width:88%;padding:11px 15px;font-size:13px;line-height:1.55}
+.chat-msg.kord{background:rgba(255,255,255,0.07);color:var(--white);align-self:flex-start;border-left:2px solid rgba(255,255,255,0.15)}
+.chat-msg.user{background:var(--white);color:var(--black);align-self:flex-end}
+.chat-typing{display:flex;gap:4px;align-items:center;padding:11px 15px;background:rgba(255,255,255,0.07);align-self:flex-start}
+.chat-typing span{width:5px;height:5px;background:var(--g400);border-radius:50%;animation:bounce .9s infinite}
+.chat-typing span:nth-child(2){animation-delay:.2s}
+.chat-typing span:nth-child(3){animation-delay:.4s}
+.chat-input-row{display:flex;border-top:0.5px solid var(--border)}
+.chat-input{flex:1;background:transparent;border:none;padding:14px 16px;color:var(--white);font-family:'Inter',sans-serif;font-size:13px;font-weight:300;outline:none}
+.chat-input::placeholder{color:rgba(255,255,255,0.2)}
+.chat-send{background:var(--white);border:none;padding:14px 18px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;color:var(--black);flex-shrink:0}
+
+/* Toast */
+.toast{position:fixed;bottom:34px;left:50%;transform:translateX(-50%) translateY(20px);z-index:999;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;padding:16px 26px;opacity:0;transition:all .3s ease;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.ok{background:var(--black);color:var(--white)}
+.toast.err{background:#e03e3e;color:var(--white)}
+
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+</style>
+<script src="kord-loader.js"></script>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sb-logo"><a href="index.html" class="sb-word">KORD</a></div>
+  <nav class="sb-nav">
+    <div class="sb-section">Espace client</div>
+    <div class="sb-item active" data-page="dashboard">
+      <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" stroke="white" stroke-width="1.2"/><rect x="8" y="1" width="5" height="5" stroke="white" stroke-width="1.2"/><rect x="1" y="8" width="5" height="5" stroke="white" stroke-width="1.2"/><rect x="8" y="8" width="5" height="5" stroke="white" stroke-width="1.2"/></svg>
+      Tableau de bord
+    </div>
+    <div class="sb-item" data-page="depot">
+      <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M7 2v8M7 2L4 5M7 2l3 3" stroke="white" stroke-width="1.2" stroke-linecap="square"/><path d="M2 10v2h10v-2" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Déposer mes fichiers
+    </div>
+    <div class="sb-item" data-page="dossier">
+      <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="9" rx="1" stroke="white" stroke-width="1.2"/><path d="M1 6h12" stroke="white" stroke-width="1.2"/><path d="M4 3V2h6v1" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Mon dossier
+    </div>
+    <div class="sb-item" data-page="rapports">
+      <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="1" stroke="white" stroke-width="1.2"/><path d="M4 5h6M4 7h6M4 9h3" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Mes rapports
+    </div>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-user-name" id="sb-name"></div>
+    <div class="sb-user-company" id="sb-company"></div>
+    <div class="sb-logout" onclick="logout()">
+      <svg width="13" height="13" viewBox="0 0 12 12" fill="none"><path d="M8 2h2v8H8M5 8l3-2-3-2" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg>
+      Déconnexion
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="page-title">Tableau de bord</span>
+    <div class="topbar-badges">
+      <div class="topbar-badge" id="tb-quarter"></div>
+      <div class="topbar-badge" id="tb-date"></div>
+    </div>
+  </div>
+
+  <!-- TABLEAU DE BORD -->
+  <div id="page-dashboard" class="page active">
+    <div class="dashboard-layout">
+      <div class="dash-dark">
+        <div class="section-label-dark">Vue d'ensemble</div>
+        <div class="stats-grid">
+          <div class="stat-cell">
+            <div class="stat-cell-label">Fichiers déposés</div>
+            <div class="stat-cell-val" id="st-files">0</div>
+            <div class="stat-cell-sub">ce trimestre</div>
+          </div>
+          <div class="stat-cell" style="border-right:none">
+            <div class="stat-cell-label">Rapports reçus</div>
+            <div class="stat-cell-val" id="st-reports">0</div>
+            <div class="stat-cell-sub">au total</div>
+          </div>
+        </div>
+
+        <div class="section-label-dark">Dossier en cours</div>
+        <div id="dossier-widget">
+          <div class="dossier-card">
+            <div class="no-dossier-msg">Aucun fichier déposé pour ce trimestre. Commencez par déposer vos exports opérationnels.</div>
+            <span class="btn-white" style="cursor:pointer" onclick="showPage('depot')">Déposer mes fichiers →</span>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+          <span class="btn-ghost" style="cursor:pointer;font-size:11px" onclick="showPage('depot')">Ajouter des fichiers</span>
+          <span class="btn-ghost" style="cursor:pointer;font-size:11px" onclick="showPage('dossier')">Voir mon dossier</span>
+        </div>
+      </div>
+
+      <div class="dash-light">
+        <div class="section-label-light">Dernier rapport KORD</div>
+        <div class="score-wrap">
+          <div class="score-ring">
+            <div class="score-big" id="last-score">N/A</div>
+            <div class="score-small">/100</div>
+          </div>
+          <div class="score-heading">Score KORD</div>
+          <div class="score-text" id="last-summary">Aucun rapport disponible. Déposez vos données pour recevoir votre première analyse.</div>
+        <div style="font-size:10px;color:#9b9b9b;margin-top:8px;font-style:italic">Score indicatif — sera confirmé après validation par nos experts.</div>
+        </div>
+
+        <div class="info-block">
+          <div class="info-block-label">Trimestre en cours</div>
+          <div class="info-block-val" id="quarter-display" style="color:var(--black)"></div>
+          <div class="info-block-sub" id="date-display" style="color:var(--g400)"></div>
+        </div>
+
+        <div id="rapport-preview-widget"></div>
+
+        <div class="info-block" style="margin-top:24px">
+          <div class="info-block-label">Besoin d'aide ?</div>
+          <p style="font-size:13px;color:var(--g400);line-height:1.7;margin-bottom:12px">Notre assistant KORD répond à vos questions sur votre analyse et vos données.</p>
+          <button onclick="toggleChat()" style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--black);background:transparent;border:0.5px solid rgba(0,0,0,0.18);padding:10px 20px;cursor:pointer">Ouvrir l'assistant →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DÉPOSER FICHIERS -->
+  <div id="page-depot" class="page">
+    <div class="depot-page">
+      <div class="depot-header-section">
+        <h2 class="depot-title">Déposer mes fichiers</h2>
+        <p class="depot-sub">Plus vous nous transmettez de données, plus votre rapport sera précis et vos recommandations pertinentes. Voici ce que nous pouvons analyser.</p>
+      </div>
+      <div class="depot-body">
+
+        <div class="section-label-dark" style="margin-bottom:16px">Fichiers que nous analysons</div>
+        <div class="fichiers-grid" style="margin-bottom:40px">
+          <div class="ft-card">
+            <div class="ft-top"><span class="ft-name">Stock</span><span class="ft-badge ft-essential">Essentiel</span></div>
+            <div class="ft-desc">Références, quantités, valeurs unitaires. Indispensable pour calculer le cash immobilisé et les dormants.</div>
+          </div>
+          <div class="ft-card">
+            <div class="ft-top"><span class="ft-name">Commandes</span><span class="ft-badge ft-essential">Essentiel</span></div>
+            <div class="ft-desc">Historique commandes fournisseurs avec statuts et délais. Révèle les retards et concentrations.</div>
+          </div>
+          <div class="ft-card">
+            <div class="ft-top"><span class="ft-name">Expéditions</span><span class="ft-badge ft-essential">Essentiel</span></div>
+            <div class="ft-desc">Détail expéditions avec coûts et transporteurs. Identifie les surfacturations et anomalies.</div>
+          </div>
+          <div class="ft-card">
+            <div class="ft-top"><span class="ft-name">Achats</span><span class="ft-badge ft-recommended">Recommandé</span></div>
+            <div class="ft-desc">Achats par fournisseur et période. Analyse la concentration et les conditions d'achat.</div>
+          </div>
+          <div class="ft-card">
+            <div class="ft-top"><span class="ft-name">Prix et marges</span><span class="ft-badge ft-recommended">Recommandé</span></div>
+            <div class="ft-desc">Grille tarifaire et marges produit. Détecte les références vendues à perte ou sous-valorisées.</div>
+          </div>
+          <div class="ft-card">
+            <div class="ft-top"><span class="ft-name">Retours clients</span><span class="ft-badge ft-optional">Optionnel</span></div>
+            <div class="ft-desc">Volume et motifs de retours. Quantifie l'impact sur votre marge globale.</div>
+          </div>
+        </div>
+
+        <div class="upload-card">
+          <div class="upload-card-title">Sélectionner vos fichiers</div>
+          <div class="upload-zone" id="drop-zone">
+            <input type="file" id="file-input" accept=".csv,.xlsx,.xls" multiple onchange="addFiles(this.files)"/>
+            <div class="upload-icon">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><path d="M18 26V10M18 10l-7 7M18 10l7 7" stroke="white" stroke-width="1.6" stroke-linecap="square"/><rect x="3" y="3" width="30" height="30" rx="1" stroke="white" stroke-width="1" opacity="0.3"/></svg>
+            </div>
+            <div class="upload-main-text">Glissez vos fichiers ici ou cliquez pour parcourir</div>
+            <div class="upload-hint-text">CSV, XLSX acceptés — plusieurs fichiers à la fois — 50 Mo max par fichier</div>
+            <div class="upload-browse-btn">Choisir mes fichiers</div>
+          </div>
+
+          <div id="selected-list" class="selected-list"></div>
+        </div>
+
+        <div class="confirm-bar" id="confirm-bar">
+          <div class="confirm-info"><strong id="confirm-count">0 fichier</strong> sélectionné — vérifiez la liste puis confirmez</div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <button class="btn-cancel-sel" onclick="clearFiles()">Tout effacer</button>
+            <button class="btn-confirm" id="btn-confirm" onclick="confirmUpload()">Confirmer le dépôt →</button>
+          </div>
+        </div>
+
+        <div class="upload-success" id="upload-success">
+          <div class="us-title">Fichiers déposés avec succès</div>
+          <div class="us-sub">Notre équipe a bien reçu vos fichiers. Nous allons les analyser et vous revenir dans les meilleurs délais. Vous pouvez suivre l'état dans "Mon dossier".</div>
+          <br>
+          <button onclick="showPage('dossier');document.getElementById('upload-success').classList.remove('show')" style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--black);background:transparent;border:0.5px solid rgba(0,0,0,0.2);padding:12px 24px;cursor:pointer;margin-top:8px">Voir mon dossier →</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MON DOSSIER -->
+  <div id="page-dossier" class="page">
+    <div class="dossier-page">
+      <div class="dossier-page-header">
+        <h2 class="dossier-page-title">Mon dossier</h2>
+        <p class="dossier-page-sub">Tous vos fichiers déposés. Notre équipe analyse l'ensemble et vous restitue un rapport trimestriel complet.</p>
+      </div>
+      <div class="dossier-content">
+        <div class="trim-row">
+          <button class="trim-btn active" onclick="filterTrim('all',this)">Tout</button>
+          <button class="trim-btn" onclick="filterTrim('T1',this)">T1 2026</button>
+          <button class="trim-btn" onclick="filterTrim('T2',this)">T2 2026</button>
+          <button class="trim-btn" onclick="filterTrim('T3',this)">T3 2026</button>
+          <button class="trim-btn" onclick="filterTrim('T4',this)">T4 2026</button>
+        </div>
+        <div class="files-table">
+          <div class="ft-head">
+            <div class="fth">Fichier</div>
+            <div class="fth">Type</div>
+            <div class="fth">Date</div>
+            <div class="fth">Statut</div>
+          </div>
+          <div id="dossier-list"><div class="empty-row">Chargement...</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MES RAPPORTS -->
+  <div id="page-rapports" class="page">
+    <div class="rapports-page-header">
+      <h2 class="rapports-page-title">Mes rapports</h2>
+      <p class="rapports-page-sub">Vos rapports KORD trimestriels avec Score, graphiques et recommandations priorisées.</p>
+    </div>
+    <div class="rapports-content">
+      <div id="rapports-list">
+        <div class="no-rapport">
+          <div class="no-rapport-title">Aucun rapport disponible</div>
+          <div class="no-rapport-sub">Votre premier rapport KORD apparaîtra ici après que notre équipe ait analysé vos données.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- CHATBOT -->
+<div class="chat-bubble">
+  <div class="chat-window" id="chat-window">
+    <div class="chat-header">
+      <div>
+        <div class="chat-header-title">Assistant KORD</div>
+        <div class="chat-header-sub">Expert supply chain et data</div>
+      </div>
+      <button class="chat-close" onclick="toggleChat()">×</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-msg kord">Bonjour. Je suis l'assistant virtuel KORD. Je suis là pour vous guider sur la plateforme et répondre à vos questions.</div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" placeholder="Votre question..." onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button class="chat-send" onclick="sendChat()">→</button>
+    </div>
+  </div>
+  <button class="chat-btn" onclick="toggleChat()">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 4h16v12H3z" stroke="black" stroke-width="1.5" stroke-linecap="square"/><path d="M7 18l-4 3V18" stroke="black" stroke-width="1.5" stroke-linecap="square"/><path d="M7 9h8M7 12h5" stroke="black" stroke-width="1.5" stroke-linecap="square"/></svg>
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL  = 'COLLE_TON_URL_ICI'
+const SUPABASE_ANON = 'COLLE_TA_CLE_ANON_ICI'
+const API_URL       = 'COLLE_TON_URL_RENDER_ICI'
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON)
+
+let currentUser = null
+let allSubs = []
+let selectedFiles = []
+let chatHistory = []
+
+// Sécurité back button
+window.history.pushState(null,'',window.location.href)
+window.addEventListener('popstate',()=>window.history.pushState(null,'',window.location.href))
+
+// ── INIT ──
+window.onload = async () => {
+  const{data:{session}}=await sb.auth.getSession()
+  if(!session){window.kordNavigate?window.kordNavigate('login.html'):(window.location.replace('login.html'));return}
+  currentUser=session.user
+
+  const{data:p}=await sb.from('profiles').select('*').eq('id',currentUser.id).single()
+  document.getElementById('sb-name').textContent=p?.contact_name||currentUser.email
+  document.getElementById('sb-company').textContent=p?.company_name||''
+
+  const now=new Date()
+  const q=`T${Math.ceil((now.getMonth()+1)/3)} ${now.getFullYear()}`
+  document.getElementById('tb-quarter').textContent=q
+  document.getElementById('tb-date').textContent=now.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
+  document.getElementById('quarter-display').textContent=q
+  document.getElementById('date-display').textContent=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
+
+  document.querySelectorAll('.sb-item').forEach(item=>{
+    item.addEventListener('click',()=>showPage(item.dataset.page))
+  })
+
+  setupDragDrop()
+  await loadAll()
+}
+
+// ── NAVIGATION ──
+const PAGE_TITLES={dashboard:'Tableau de bord',depot:'Déposer mes fichiers',dossier:'Mon dossier',rapports:'Mes rapports'}
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'))
+  document.getElementById('page-'+name)?.classList.add('active')
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.toggle('active',i.dataset.page===name))
+  document.getElementById('page-title').textContent=PAGE_TITLES[name]||''
+  if(name==='dossier')renderDossier(allSubs)
+  if(name==='rapports')loadRapports()
+}
+
+// ── CHARGEMENT ──
+async function loadAll(){
+  const{data:subs}=await sb.from('submissions').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})
+  allSubs=subs||[]
+  document.getElementById('st-files').textContent=allSubs.length
+
+  if(allSubs.length>0){
+    const recent=allSubs.slice(0,5)
+    const lastStatus=allSubs[0].status
+    const sc=lastStatus==='terminé'?'bs-done':'bs-analyse'
+    const sl=lastStatus==='terminé'?'Terminé':'En analyse'
+    document.getElementById('dossier-widget').innerHTML=`
+      <div class="dossier-card">
+        <div class="dossier-card-header">
+          <span class="dossier-card-title">${allSubs.length} fichier${allSubs.length>1?'s':''} déposé${allSubs.length>1?'s':''}</span>
+          <span class="badge-status ${sc}">${sl}</span>
+        </div>
+        <div class="dossier-files-list">
+          ${recent.map(s=>`<div class="dossier-file-item"><svg width="12" height="13" viewBox="0 0 12 14" fill="none"><rect x="1" y="1" width="10" height="12" rx="1" stroke="white" stroke-width="1.1" opacity="0.4"/></svg>${s.file_name}</div>`).join('')}
+          ${allSubs.length>5?`<div style="font-size:11px;color:var(--g400);margin-top:4px">+ ${allSubs.length-5} autre(s) fichier(s)</div>`:''}
+        </div>
+      </div>`
+  }
+
+  const{data:rpts}=await sb.from('reports').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})
+  const reports=rpts||[]
+  document.getElementById('st-reports').textContent=reports.length
+  if(reports.length>0){
+    const last=reports[0]
+    document.getElementById('last-score').textContent=last.score_kord||0
+    document.getElementById('last-summary').textContent=last.summary?.substring(0,140)+'...'||''
+    if(last.report_url){
+      document.getElementById('rapport-preview-widget').innerHTML=`
+        <div class="rapport-preview">
+          <div class="rp-title">Rapport KORD — ${new Date(last.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
+          <div class="rp-meta">Score KORD : ${last.score_kord}/100</div>
+          <a href="${last.report_url}" target="_blank" class="btn-dl-black">Télécharger le rapport</a>
+        </div>`
+    }
+  }
+}
+
+// ── FICHIERS ──
+function addFiles(fileList){
+  Array.from(fileList).forEach(f=>{
+    if(selectedFiles.find(x=>x.name===f.name))return
+    if(f.size>50*1024*1024){showToast('Fichier trop volumineux : '+f.name,'err');return}
+    const ext=f.name.split('.').pop().toLowerCase()
+    if(!['csv','xlsx','xls'].includes(ext)){showToast('Format non supporté : '+f.name,'err');return}
+    selectedFiles.push(f)
+  })
+  renderSelectedFiles()
+}
+
+function formatSize(bytes){
+  if(bytes===0)return'0 o'
+  if(bytes<1024)return bytes+' o'
+  if(bytes<1024*1024)return(bytes/1024).toFixed(1)+' Ko'
+  return(bytes/1024/1024).toFixed(2)+' Mo'
+}
+
+function renderSelectedFiles(){
+  const list=document.getElementById('selected-list')
+  const bar=document.getElementById('confirm-bar')
+  const cnt=document.getElementById('confirm-count')
+  if(selectedFiles.length===0){list.innerHTML='';bar.classList.remove('show');return}
+  list.innerHTML=selectedFiles.map((f,i)=>{
+    const size=f.size>0?formatSize(f.size):'Calcul...'
+    const ext=f.name.split('.').pop().toUpperCase()
+    return`<div class="sel-file">
+      <div class="sel-file-icon"><svg width="14" height="16" viewBox="0 0 14 16" fill="none"><rect x="1" y="1" width="12" height="14" rx="1" stroke="white" stroke-width="1.2"/><path d="M4 5h6M4 8h6M4 11h3" stroke="white" stroke-width="1.2" stroke-linecap="square"/></svg></div>
+      <div class="sel-file-info">
+        <div class="sel-file-name">${f.name}</div>
+        <div class="sel-file-size">${ext} · ${size}</div>
+      </div>
+      <button class="sel-file-remove" onclick="removeFile(${i})">×</button>
+    </div>`
+  }).join('')
+  const totalSize=selectedFiles.reduce((a,f)=>a+f.size,0)
+  cnt.innerHTML=`<strong>${selectedFiles.length} fichier${selectedFiles.length>1?'s':''}</strong> · ${formatSize(totalSize)} total`
+  bar.classList.add('show')
+}
+
+function removeFile(i){selectedFiles.splice(i,1);renderSelectedFiles()}
+function clearFiles(){selectedFiles=[];renderSelectedFiles();document.getElementById('file-input').value=''}
+
+// Convertit un fichier en base64 (Promise)
+function toBase64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader()
+    r.onload=e=>res(e.target.result.split(',')[1])
+    r.onerror=rej
+    r.readAsDataURL(file)
+  })
+}
+
+async function confirmUpload(){
+  const btn=document.getElementById('btn-confirm')
+  btn.disabled=true;btn.textContent='Envoi en cours...'
+
+  let success=0
+  for(const file of selectedFiles){
+    try{
+      // 1. Convertir en base64 AVANT tout
+      const b64=await toBase64(file)
+      console.log('Fichier encodé:', file.name, 'taille b64:', b64.length)
+
+      // 2. Upload Storage
+      const path=`${currentUser.id}/${Date.now()}_${file.name}`
+      const{error:ue}=await sb.storage.from('client-files').upload(path,file)
+      if(ue)throw ue
+
+      // 3. Enregistrer en base
+      const{data:sd,error:de}=await sb.from('submissions')
+        .insert({user_id:currentUser.id,file_name:file.name,file_path:path,status:'en_analyse'})
+        .select()
+      if(de)throw de
+
+      // 4. Envoyer à l'API
+      if(sd&&sd[0]&&API_URL&&API_URL!=='COLLE_TON_URL_RENDER_ICI'){
+        console.log('Appel API analyze pour:', file.name)
+        fetch(`${API_URL}/analyze`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            submission_id:sd[0].id,
+            file_name:file.name,
+            user_id:currentUser.id,
+            file_b64:b64
+          })
+        }).then(r=>r.json()).then(d=>console.log('API résultat:',d)).catch(e=>console.error('API erreur:',e))
+      } else {
+        console.warn('API_URL non configurée ou fichier manquant')
+      }
+
+      success++
+    }catch(e){
+      console.error('Erreur upload:', e)
+      showToast('Erreur : '+file.name,'err')
+    }
+  }
+
+  btn.disabled=false;btn.textContent='Confirmer le dépôt →'
+  if(success>0){
+    clearFiles()
+    document.getElementById('confirm-bar').classList.remove('show')
+    document.getElementById('upload-success').classList.add('show')
+    await loadAll()
+
+    // Lancer l'analyse globale sur tous les fichiers déposés
+    if(API_URL&&API_URL!=='COLLE_TON_URL_RENDER_ICI'&&window._pendingAnalysis&&window._pendingAnalysis.length>0){
+      const now=new Date()
+      const trimestre=`T${Math.ceil((now.getMonth()+1)/3)} ${now.getFullYear()}`
+      setTimeout(()=>{
+        fetch(`${API_URL}/analyze-global`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            user_id:currentUser.id,
+            trimestre:trimestre,
+            files:window._pendingAnalysis
+          })
+        }).then(r=>r.json()).then(d=>{
+          console.log('Analyse globale terminée :', d)
+          window._pendingAnalysis=[]
+          loadAll()
+        }).catch(e=>console.log('Erreur analyse globale:', e))
+      }, 1000)
+    }
+  }
+}
+
+// ── MON DOSSIER ──
+function filterTrim(t,btn){
+  document.querySelectorAll('.trim-btn').forEach(b=>b.classList.remove('active'))
+  btn.classList.add('active')
+  if(t==='all')renderDossier(allSubs)
+  else{
+    const filtered=allSubs.filter(s=>{
+      const d=new Date(s.created_at)
+      const q=`T${Math.ceil((d.getMonth()+1)/3)}`
+      return q===t
+    })
+    renderDossier(filtered)
+  }
+}
+
+function renderDossier(list){
+  const el=document.getElementById('dossier-list')
+  if(!list.length){el.innerHTML='<div class="empty-row">Aucun fichier pour cette période.</div>';return}
+  el.innerHTML=list.map(s=>{
+    const date=new Date(s.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})
+    const ext=s.file_name.split('.').pop().toUpperCase()
+    const badge=s.status==='terminé'?'<span class="badge badge-done">Terminé</span>':'<span class="badge badge-wip">En analyse</span>'||'<span class="badge badge-wait">En attente</span>'
+    return`<div class="ft-row"><div class="ftd">${s.file_name}<div class="ftd-sub">${ext}</div></div><div class="ftd ftd-muted">${ext}</div><div class="ftd ftd-muted">${date}</div><div class="ftd">${badge}</div></div>`
+  }).join('')
+}
+
+// ── RAPPORTS ──
+async function loadRapports(){
+  const{data:rpts}=await sb.from('reports').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})
+  const el=document.getElementById('rapports-list')
+  if(!rpts||!rpts.length){el.innerHTML=`<div class="no-rapport"><div class="no-rapport-title">Aucun rapport disponible</div><div class="no-rapport-sub">Votre premier rapport KORD apparaîtra ici après que notre équipe ait analysé vos données.</div></div>`;return}
+  el.innerHTML=rpts.map(r=>{
+    const date=new Date(r.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
+    const q=`T${Math.ceil((new Date(r.created_at).getMonth()+1)/3)} ${new Date(r.created_at).getFullYear()}`
+    return`<div class="rapport-card">
+      <div class="rc-info">
+        <div class="rc-company">Rapport KORD — ${q}</div>
+        <div class="rc-meta">${date} · ${r.summary?r.summary.substring(0,100)+'...':'Analyse complète disponible'}</div>
+      </div>
+      <div class="rc-score">
+        <div class="rc-score-num">${r.score_kord||0}</div>
+        <div class="rc-score-label">/100</div>
+      </div>
+      <div class="rc-actions">
+        ${r.report_url?`<a class="btn-dl-dark" href="${r.report_url}" target="_blank">Télécharger PDF</a>`:'<span style="font-size:11px;color:var(--g400)">Rapport en cours</span>'}
+      </div>
+    </div>`
+  }).join('')
+}
+
+// ── DRAG & DROP ──
+function setupDragDrop(){
+  const el=document.getElementById('drop-zone')
+  if(!el)return
+  el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('drag-over')})
+  el.addEventListener('dragleave',()=>el.classList.remove('drag-over'))
+  el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('drag-over');addFiles(e.dataTransfer.files)})
+}
+
+// ── CHATBOT ──
+function toggleChat(){
+  const w=document.getElementById('chat-window')
+  w.classList.toggle('open')
+  if(w.classList.contains('open'))document.getElementById('chat-input').focus()
+}
+
+async function sendChat(){
+  const input=document.getElementById('chat-input')
+  const msg=input.value.trim()
+  if(!msg)return
+  input.value=''
+  addChatMsg(msg,'user')
+  chatHistory.push({role:'user',content:msg})
+
+  const typing=document.createElement('div')
+  typing.className='chat-typing';typing.id='typing'
+  typing.innerHTML='<span></span><span></span><span></span>'
+  document.getElementById('chat-messages').appendChild(typing)
+  scrollChat()
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:600,
+        system:`Tu es l'assistant expert de KORD, plateforme d'audit en performance opérationnelle et supply chain.
+
+Tu combines les expertises de :
+- Expert supply chain senior (gestion de stock, flux logistiques, BFR, taux de service)
+- Data analyst (lecture de données, détection d'anomalies, KPIs opérationnels)
+- Analyste financier opérationnel (marges, cash flow, optimisation des coûts)
+
+Tu guides le client sur :
+1. Comment utiliser la plateforme (déposer des fichiers, suivre son dossier)
+2. Comprendre les résultats de son analyse KORD
+3. Répondre à ses questions sur la logistique, le stock, les achats, le transport
+4. L'aider à interpréter ses données
+
+Réponds en français, de façon concise et professionnelle. Sois direct et utile. Maximum 4 phrases par réponse.`,
+        messages:chatHistory.slice(-8)
+      })
+    })
+    const data=await resp.json()
+    document.getElementById('typing')?.remove()
+    const answer=data.content?.[0]?.text||'Je suis disponible pour vous aider. Posez-moi votre question.'
+    chatHistory.push({role:'assistant',content:answer})
+    addChatMsg(answer,'kord')
+  }catch(e){
+    document.getElementById('typing')?.remove()
+    addChatMsg('Une erreur est survenue. Réessayez dans un moment.','kord')
+  }
+}
+
+function addChatMsg(text,type){
+  const div=document.createElement('div')
+  div.className=`chat-msg ${type}`;div.textContent=text
+  document.getElementById('chat-messages').appendChild(div)
+  scrollChat()
+}
+function scrollChat(){const m=document.getElementById('chat-messages');m.scrollTop=m.scrollHeight}
+
+// ── LOGOUT ──
+async function logout(){await sb.auth.signOut();window.kordNavigate?window.kordNavigate('login.html'):(window.location.replace('login.html'))}
+
+// ── TOAST ──
+function showToast(msg,type='ok'){
+  const t=document.getElementById('toast')
+  t.textContent=msg;t.className=`toast ${type} show`
+  setTimeout(()=>t.classList.remove('show'),3500)
+}
+</script>
+</body>
+</html>
