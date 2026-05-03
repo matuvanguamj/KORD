@@ -297,7 +297,7 @@ document.querySelectorAll('.sb-item').forEach(item=>{
 
 window.onload = async () => {
   const{data:{session}}=await sb.auth.getSession()
-  if(!session){window.kordNavigate?window.kordNavigate('login.html'):(window.location.replace('kord.html'));return}
+  if(!session){window.kordNavigate?window.kordNavigate('login.html'):(window.location.replace('index.html'));return}
   if(session.user.email!==ADMIN_EMAIL){window.kordNavigate?window.kordNavigate('dashboard.html'):(window.kordNavigate?window.kordNavigate('dashboard.html'):(window.location.href='dashboard.html'));return}
   document.getElementById('topbar-date').textContent=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
   await loadAll()
@@ -461,7 +461,7 @@ async function saveReport(){
   await loadAll()
 }
 
-async function logout(){await sb.auth.signOut();window.kordNavigate?window.kordNavigate('login.html'):(window.location.replace('kord.html'))}
+async function logout(){await sb.auth.signOut();window.kordNavigate?window.kordNavigate('login.html'):(window.location.replace('index.html'))}
 
 function showToast(msg,type='ok'){
   const t=document.getElementById('toast')
