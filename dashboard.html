@@ -566,14 +566,14 @@ document.addEventListener('DOMContentLoaded',()=>{
 window.history.pushState(null,'',window.location.href)
 window.addEventListener('popstate',async()=>{
   const{data:{session}}=await sb.auth.getSession()
-  if(!session){ window.location.replace('kord.html'); return }
+  if(!session){ window.location.replace('index.html'); return }
   window.history.pushState(null,'',window.location.href)
 })
 
 // ── INIT ──
 window.onload = async () => {
   const{data:{session}}=await sb.auth.getSession()
-  if(!session){window.kordNavigate?window.kordNavigate('login.html'):(window.location.replace('kord.html'));return}
+  if(!session){window.kordNavigate?window.kordNavigate('login.html'):(window.location.replace('index.html'));return}
   currentUser=session.user
 
   const{data:p}=await sb.from('profiles').select('*').eq('id',currentUser.id).single()
@@ -902,7 +902,7 @@ function addChatMsg(text,type){
 function scrollChat(){const m=document.getElementById('chat-messages');m.scrollTop=m.scrollHeight}
 
 // ── LOGOUT ──
-async function logout(){await sb.auth.signOut();window.kordNavigate?window.kordNavigate('login.html'):(window.location.replace('kord.html'))}
+async function logout(){await sb.auth.signOut();window.kordNavigate?window.kordNavigate('login.html'):(window.location.replace('index.html'))}
 
 // ── TOAST ──
 function showToast(msg,type='ok'){
