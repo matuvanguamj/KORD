@@ -5,14 +5,14 @@
 (function() {
 
   const path = window.location.pathname;
-  const showOn = ['/', '/index.html', '/kord.html', '/dashboard.html', '/admin.html'];
+  const showOn = ['/', '/index.html', '/index.html', '/dashboard.html', '/admin.html'];
 
   const fromLogin = document.referrer.includes('login') ||
                     document.referrer.includes('register') ||
                     sessionStorage.getItem('kord_just_logged_in') === '1';
 
   const isDashboard = path.includes('dashboard') || path.includes('admin');
-  const isIndex = path === '/' || path.includes('index') || path.includes('kord.html') || path === '';
+  const isIndex = path === '/' || path.includes('index') || path.includes('index.html') || path === '';
 
   if (isDashboard && !fromLogin) {
     sessionStorage.removeItem('kord_just_logged_in');
