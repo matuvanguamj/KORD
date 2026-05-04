@@ -52,7 +52,7 @@
     #kl-lockup {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 10px;
       margin-bottom: 44px;
     }
 
@@ -69,8 +69,8 @@
     #kl-word {
       font-family: 'Space Grotesk', sans-serif;
       font-weight: 700;
-      font-size: clamp(56px, 9vw, 88px);
-      letter-spacing: -0.01em;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: .04em;
       color: #fff;
       line-height: 1;
       display: flex;
@@ -140,7 +140,7 @@
   loader.id = 'kord-loader';
   loader.innerHTML = `
     <div id="kl-lockup">
-      <svg id="kl-logo" xmlns="http://www.w3.org/2000/svg" viewBox="80 50 350 420" style="height:clamp(56px,9vw,88px);width:auto;flex-shrink:0">
+      <svg id="kl-logo" xmlns="http://www.w3.org/2000/svg" viewBox="80 50 350 420" style="height:clamp(44px,7vw,72px);width:auto;flex-shrink:0">
         <g fill="#FFFFFF">
           <rect x="112" y="150" width="50" height="214"/>
           <rect x="234" y="72" width="52" height="156" transform="rotate(-47 260 150)"/>
