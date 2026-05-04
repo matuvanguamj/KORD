@@ -145,7 +145,7 @@ textarea.modal-input{resize:vertical;min-height:80px}
 <body>
 
 <aside class="sidebar">
-  <div class="sb-logo"><span class="sb-word">KORD</span><span class="sb-tag" style="display:none" class="hide-mobile">Admin</span><button id="sb-hamburger2" onclick="document.querySelector('.sb-nav').classList.toggle('open')" style="margin-left:auto"><span></span><span></span><span></span></button></div>
+  <div class="sb-logo" style="display:flex;align-items:center;gap:8px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="80 50 350 420" style="height:20px;width:auto;flex-shrink:0"><g fill="#000000"><rect x="112" y="150" width="50" height="214"/><rect x="234" y="72" width="52" height="156" transform="rotate(-47 260 150)"/><rect x="205" y="276" width="52" height="166" transform="rotate(42 231 359)"/></g></svg><span style="font-family:\'Space Grotesk\',sans-serif;font-weight:700;font-size:13px;color:#000000;letter-spacing:.04em;cursor:default">KORD</span><span class="sb-tag" style="display:none" class="hide-mobile">Admin</span><button id="sb-hamburger2" onclick="document.querySelector('.sb-nav').classList.toggle('open')" style="margin-left:auto"><span></span><span></span><span></span></button></div>
   <nav class="sb-nav">
     <div class="sb-section">Administration</div>
     <div class="sb-item active" data-page="depots">
@@ -272,9 +272,9 @@ textarea.modal-input{resize:vertical;min-height:80px}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL  = 'https://dtnkqxbyvnsybddbyelv.supabase.co'
-const SUPABASE_ANON = 'sb_publishable_RqkmwDHNRAmxWvIwiBq39w_EGRyJT2f'
-const ADMIN_EMAIL   = 'matuvangua.mj@gmail.com'
+const SUPABASE_URL  = 'COLLE_TON_URL_ICI'
+const SUPABASE_ANON = 'COLLE_TA_CLE_ANON_ICI'
+const ADMIN_EMAIL   = 'COLLE_TON_EMAIL_ICI'
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON)
 
 let allDepots=[], allProfiles=[], allReports=[]
