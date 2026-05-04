@@ -68,7 +68,7 @@ body{font-family:'Inter',sans-serif;font-weight:300;background:#000;color:#fff;m
 </head>
 <body>
 <div class="left">
-  <a href="index.html" class="left-logo">KORD</a>
+  <a href="index.html" class="left-logo" style="display:inline-flex;align-items:center;gap:5px;text-decoration:none;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="80 50 350 420" style="height:20px;width:auto;flex-shrink:0"><g fill="#000000"><rect x="112" y="150" width="50" height="214"/><rect x="234" y="72" width="52" height="156" transform="rotate(-47 260 150)"/><rect x="205" y="276" width="52" height="166" transform="rotate(42 231 359)"/></g></svg><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:#000000;letter-spacing:.04em;line-height:1">KORD</span></a>
   <div class="left-center">
     <h2 class="left-tagline">Votre espace<br>d'analyse<br><em>vous attend.</em></h2>
     <div class="left-steps">
@@ -112,8 +112,8 @@ body{font-family:'Inter',sans-serif;font-weight:300;background:#000;color:#fff;m
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const SUPABASE_URL  = 'https://dtnkqxbyvnsybddbyelv.supabase.co'
-  const SUPABASE_ANON = 'sb_publishable_RqkmwDHNRAmxWvIwiBq39w_EGRyJT2f'
+  const SUPABASE_URL  = 'COLLE_TON_URL_ICI'
+  const SUPABASE_ANON = 'COLLE_TA_CLE_ANON_ICI'
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON)
 
   document.getElementById('pw').addEventListener('keydown', e => { if(e.key==='Enter') register() })

@@ -292,7 +292,7 @@ body{font-family:'Inter',sans-serif;font-weight:300;background:var(--near);color
 <body>
 
 <aside class="sidebar">
-  <div class="sb-logo"><span class="sb-word" style="cursor:default">KORD</span><button id="sb-hamburger" onclick="toggleMenu()" aria-label="Menu"><span></span><span></span><span></span></button></div>
+  <div class="sb-logo" style="display:flex;align-items:center;gap:8px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="80 50 350 420" style="height:20px;width:auto;flex-shrink:0"><g fill="#FFFFFF"><rect x="112" y="150" width="50" height="214"/><rect x="234" y="72" width="52" height="156" transform="rotate(-47 260 150)"/><rect x="205" y="276" width="52" height="166" transform="rotate(42 231 359)"/></g></svg><span style="font-family:\'Space Grotesk\',sans-serif;font-weight:700;font-size:13px;color:#FFFFFF;letter-spacing:.04em;cursor:default">KORD</span><button id="sb-hamburger" onclick="toggleMenu()" aria-label="Menu"><span></span><span></span><span></span></button></div>
   <nav class="sb-nav">
     <div class="sb-section">Espace client</div>
     <div class="sb-item active" data-page="dashboard">
@@ -536,9 +536,9 @@ body{font-family:'Inter',sans-serif;font-weight:300;background:var(--near);color
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL  = 'https://dtnkqxbyvnsybddbyelv.supabase.co'
-const SUPABASE_ANON = 'sb_publishable_RqkmwDHNRAmxWvIwiBq39w_EGRyJT2f'
-const API_URL       = 'https://kord-api-1.onrender.com'
+const SUPABASE_URL  = 'COLLE_TON_URL_ICI'
+const SUPABASE_ANON = 'COLLE_TA_CLE_ANON_ICI'
+const API_URL       = 'COLLE_TON_URL_RENDER_ICI'
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON)
 
 let currentUser = null
@@ -725,7 +725,7 @@ async function confirmUpload(){
       if(de)throw de
 
       // 4. Envoyer à l'API
-      if(sd&&sd[0]&&API_URL&&API_URL!=='https://kord-api-1.onrender.com'){
+      if(sd&&sd[0]&&API_URL&&API_URL!=='COLLE_TON_URL_RENDER_ICI'){
         console.log('Appel API analyze pour:', file.name)
         fetch(`${API_URL}/analyze`,{
           method:'POST',
@@ -756,7 +756,7 @@ async function confirmUpload(){
     await loadAll()
 
     // Lancer l'analyse globale sur tous les fichiers déposés
-    if(API_URL&&API_URL!=='https://kord-api-1.onrender.com'&&window._pendingAnalysis&&window._pendingAnalysis.length>0){
+    if(API_URL&&API_URL!=='COLLE_TON_URL_RENDER_ICI'&&window._pendingAnalysis&&window._pendingAnalysis.length>0){
       const now=new Date()
       const trimestre=`T${Math.ceil((now.getMonth()+1)/3)} ${now.getFullYear()}`
       setTimeout(()=>{
